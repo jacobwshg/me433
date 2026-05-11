@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable( hw2-pwm pico_pwm_adc.c )
+add_executable( hw2-pwm pico_pwm.c )
 
 pico_set_program_name(hw2-pwm "hw2-pwm")
 pico_set_program_version(hw2-pwm "0.1")
