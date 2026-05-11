@@ -37,12 +37,12 @@ deg_to_gpio_level( const float deg )
 		//MIN_DUTY_FRAC = 0.05F,
 		//MAX_DUTY_FRAC = 0.10F;
 
-		MIN_DUTY_FRAC = 0.05F,
-		MAX_DUTY_FRAC = 0.10F;
+		MIN_DUTY_FRAC = 0.025F,
+		MAX_DUTY_FRAC = 0.125F;
 
 	static const float
-		MIN_DUTY = 500.F,
-		MAX_DUTY = 2000.F;
+		MIN_DUTY = WRAP * MIN_DUTY_FRAC,
+		MAX_DUTY = WRAP * MAX_DUTY_FRAC;
 
 	const float duty_delta = 
 		( deg * INV_180 ) * ( MAX_DUTY-MIN_DUTY );
