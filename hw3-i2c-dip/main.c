@@ -50,18 +50,12 @@ set_heartbeat( void )
 
     enum HBState
     {
-        HB_INIT, HB_ON, HB_OFF,
-    } ;
-    static enum HBState hb_state = HB_INIT;
+        HB_ON, HB_OFF,
+    };
+    static enum HBState hb_state = HB_OFF;
 
     switch ( hb_state )
     {
-    case HB_INIT:
-        gpio_put( HEARTBEAT_PIN, true );
-        hb_state = HB_ON;
-        now = get_absolute_time();
-        state_endtime = now + HB_MAX_ONTIME;
-        break;
     case HB_ON:
         now = get_absolute_time();
         if ( now >= state_endtime )
