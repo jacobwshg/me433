@@ -46,7 +46,7 @@ static void
 set_heartbeat( void )
 {
     static const absolute_time_t
-        HB_MAX_ONTIME = 100000, HB_MAX_OFFTIME = 900000;
+        HB_MAX_ONTIME = 200000, HB_MAX_OFFTIME = 800000;
 
     static absolute_time_t
         now = 0, state_endtime = 0;
