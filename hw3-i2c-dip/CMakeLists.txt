@@ -26,7 +26,7 @@ endif()
 set(PICO_BOARD pico2_w CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
-include(pico_sdk_import.cmake)
+include( pico_sdk_import.cmake )
 
 project(hw3-i2c-dip C CXX ASM)
 
@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(hw3-i2c-dip main.c )
+add_executable( hw3-i2c-dip main.c )
 
 pico_set_program_name(hw3-i2c-dip "hw3-i2c-dip")
 pico_set_program_version(hw3-i2c-dip "0.1")
@@ -45,8 +45,10 @@ pico_enable_stdio_uart(hw3-i2c-dip 0)
 pico_enable_stdio_usb(hw3-i2c-dip 0)
 
 # Add the standard library to the build
-target_link_libraries(hw3-i2c-dip
-        pico_stdlib)
+target_link_libraries(
+    hw3-i2c-dip
+    pico_stdlib
+)
 
 # Add the standard include files to the build
 target_include_directories(hw3-i2c-dip PRIVATE
@@ -54,10 +56,10 @@ target_include_directories(hw3-i2c-dip PRIVATE
 )
 
 # Add any user requested libraries
-target_link_libraries(hw3-i2c-dip 
-        hardware_i2c
-        
-        )
+target_link_libraries(
+    hw3-i2c-dip 
+    hardware_i2c
+)
 
 pico_add_extra_outputs(hw3-i2c-dip)
 
