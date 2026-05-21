@@ -127,12 +127,16 @@ read_i2c_device(
 static void
 mcp_init( void )
 {
-    uint8_t mcp_iodir_val = 0x0;
+    // GP7 is 0 ( required output ), all others are 1
+    uint8_t mcp_iodir_val = 0x7f;
     // register MCP button input pin
-    mcp_iodir_val |= ( 0x1 << MCP_BTN_IN_PIN );
-    write_i2c_device(
-        MCP_I2C_ADDR, MCP_IODIR, mcp_iodir_val
-    );
+    //mcp_iodir_val |= ( 0x1 << MCP_BTN_IN_PIN );
+    write_i2c_device( MCP_I2C_ADDR, MCP_IODIR, mcp_iodir_val );
+
+    // use MCP's internal PU for button to save wire
+    // ( LED behavior is still idle on though ) 
+    uint8_t mcp_gppu_val = 0x1 << MCP_BTN_IN_PIN;
+    write_i2c_device( MCP_I2C_ADDR, MCP_GPPU, mcp_gppu_val );
 }
 
 int
@@ -141,8 +145,6 @@ main()
     stdio_init_all();
 
     heartbeat_init();
-
-    //
 
     // I2C Initialisation. Using it at 400Khz.
     i2c_init( I2C_PORT, 400*1000 );
