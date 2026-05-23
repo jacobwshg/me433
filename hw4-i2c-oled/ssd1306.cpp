@@ -13,7 +13,7 @@
 namespace SSD1306
 {
     static constexpr std::uint8_t I2C_ADDR { 0b0111100 }; // 7bit i2c address
-    static std::array< std::uint8_t, 513 > buffer; // 128x32/8. Every bit is a pixel except first byte
+    static std::array< std::uint8_t, BUFLEN > buffer; // 128x32/8. Every bit is a pixel except first byte
 }
 
 // send a command instruction (not pixel data)
@@ -83,8 +83,6 @@ void ssd1306_update()
     ssd1306_command( 0 );
     ssd1306_command( 128 - 1 ); // Width
 
-    unsigned short count = 512; // WIDTH * ((HEIGHT + 7) / 8)
-    unsigned char * ptr = SSD1306::buffer.data(); // first address of the pixel buffer
     /*
     i2c_master_start();
     i2c_master_send(ssd1306_write);
@@ -96,7 +94,7 @@ void ssd1306_update()
     i2c_master_stop();
     */
 
-    i2c_write_blocking( i2c_default, SSD1306::I2C_ADDR, ptr, 513, false );
+    i2c_write_blocking( i2c_default, SSD1306::I2C_ADDR, SSD1306::buffer.data(), SSD1306::BUFLEN, false );
 }
 
 // set a pixel value. Call update() to push to the display)
@@ -106,12 +104,9 @@ ssd1306_draw_pixel(
     bool color
 )
 {
-    static constexpr std::size_t
-        MAX_IROW = 32, MAX_ICOL = 128;
-
     if (
-        ( x < 0 ) || ( x >= MAX_ICOL ) ||
-        ( y < 0 ) || ( y >= MAX_IROW ) )
+        ( x < 0 ) || ( x >= SSD1306::WIDTH ) ||
+        ( y < 0 ) || ( y >= SSD1306::HEIGHT ) )
     {
         return;
     }
@@ -120,7 +115,7 @@ ssd1306_draw_pixel(
     // byte 0 in buf is command,
     // pixel bytes start at idx 1
     //
-    const std::size_t buf_byte_idx = 1 + ( y / 8 ) * MAX_ICOL + x;
+    const std::size_t buf_byte_idx = 1 + ( y / 8 ) * SSD1306::WIDTH + x;
 
     if ( color )
     {
