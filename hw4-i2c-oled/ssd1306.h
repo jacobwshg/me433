@@ -2,6 +2,7 @@
 #define SSD1306_H__
 
 #include <cstdint>
+#include <cstddef>
 
 // Based on the adafruit and sparkfun libraries
 #define SSD1306_MEMORYMODE          0x20 
@@ -25,37 +26,41 @@
 #define SSD1306_SETSTARTLINE        0x40 
 #define SSD1306_DEACTIVATE_SCROLL   0x2E ///< Stop scroll
 
-// namespace SSD1306
-// {
-//     enum class Command: std::uint8_t
-//     {
-//         MEMORYMODE          = 0x20,
-//         COLUMNADDR          = 0x21,
-//         PAGEADDR            = 0x22,
-//         SETCONTRAST         = 0x81,
-//         CHARGEPUMP          = 0x8D,
-//         SEGREMAP            = 0xA0,
-//         DISPLAYALLON_RESUME = 0xA4,
-//         NORMALDISPLAY       = 0xA6,
-//         INVERTDISPLAY       = 0xA7,
-//         SETMULTIPLEX        = 0xA8,
-//         DISPLAYOFF          = 0xAE,
-//         DISPLAYON           = 0xAF,
-//         COMSCANDEC          = 0xC8,
-//         SETDISPLAYOFFSET    = 0xD3,
-//         SETDISPLAYCLOCKDIV  = 0xD5,
-//         SETPRECHARGE        = 0xD9,
-//         SETCOMPINS          = 0xDA,
-//         SETVCOMDETECT       = 0xDB,
-//         SETSTARTLINE        = 0x40,
-//         DEACTIVATE_SCROLL   = 0x2E,
-//     };
-// }
+namespace SSD1306
+{
+    // enum class Command: std::uint8_t
+    // {
+    //     MEMORYMODE          = 0x20,
+    //     COLUMNADDR          = 0x21,
+    //     PAGEADDR            = 0x22,
+    //     SETCONTRAST         = 0x81,
+    //     CHARGEPUMP          = 0x8D,
+    //     SEGREMAP            = 0xA0,
+    //     DISPLAYALLON_RESUME = 0xA4,
+    //     NORMALDISPLAY       = 0xA6,
+    //     INVERTDISPLAY       = 0xA7,
+    //     SETMULTIPLEX        = 0xA8,
+    //     DISPLAYOFF          = 0xAE,
+    //     DISPLAYON           = 0xAF,
+    //     COMSCANDEC          = 0xC8,
+    //     SETDISPLAYOFFSET    = 0xD3,
+    //     SETDISPLAYCLOCKDIV  = 0xD5,
+    //     SETPRECHARGE        = 0xD9,
+    //     SETCOMPINS          = 0xDA,
+    //     SETVCOMDETECT       = 0xDB,
+    //     SETSTARTLINE        = 0x40,
+    //     DEACTIVATE_SCROLL   = 0x2E,
+    // };
 
-void ssd1306_setup(void);
-void ssd1306_update(void);
-void ssd1306_clear(void);
-void ssd1306_drawPixel(unsigned char x, unsigned char y, unsigned char color);
+    static constexpr std::size_t WIDTH { 128 }, HEIGHT { 32 };
+    static constexpr std::size_t BUFLEN { ( WIDTH * HEIGHT ) / 8 + 1 };
+
+    void setup( void );
+    void update( void );
+    void drawpixel( const std::size_t x, const std::size_t y, bool color );
+    void clear( void );
+
+}
 
 /// this should be private
 //void ssd1306_command(unsigned char c);
