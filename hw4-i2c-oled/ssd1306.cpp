@@ -167,10 +167,12 @@ SSD1306::draw_char_col(
 }
 
 
+// draw a character
 void
 SSD1306::draw_char( const char c, const std::size_t x, const std::size_t y )
 {
-    // draw a character
+    if ( ( c < 0x20 ) || ( c > 0x7F ) ) { return; }
+
     const ascii_bm_t &char_bm { ASCII[ c - 0x20 ] };
     for ( std::size_t dx = 0; dx < char_bm.size(); ++dx )
     {
@@ -178,16 +180,15 @@ SSD1306::draw_char( const char c, const std::size_t x, const std::size_t y )
     }
 }
 
+
+// draw a string of characters within the display bounds
 void
 SSD1306::draw_msg( const std::string_view msg, const std::size_t x0, const std::size_t y0 )
 {
     std::size_t x { x0 }, y { y0 };
-    // draw a string of characters
     for ( std::size_t i = 0; i < msg.size(); ++i )
     {
-        SSD1306::draw_char( msg[ i ], x, y );
-        x += 6;
-        if ( x >= SSD1306::WIDTH )
+        if ( x+6 >= SSD1306::WIDTH )
         {
             x = 0;
             y += 8;
@@ -196,5 +197,7 @@ SSD1306::draw_msg( const std::string_view msg, const std::size_t x0, const std::
         {
             break;
         }
+        SSD1306::draw_char( msg[ i ], x, y );
+        x += 6;
     }
 }
