@@ -135,3 +135,21 @@ SSD1306::clear()
     SSD1306::buffer[ 0 ] = 0x40; // first byte is part of command
 }
 
+
+namespace SSD1306
+{
+    static void
+    draw_char_col(
+        const std::size_t x, const std::size_t y,
+        std::uint8_t col_pxs
+    )
+    {
+        // draw a column of pixels for a character
+        for ( std::size_t i { 0 }; i < 8; ++i )
+        {
+            const bool color { 0x01 == ( col_pxs ) & 0x01 };
+            SSD1306::drawpixel( x, y + i, color );
+            col_pxs >>= 1;
+        }
+    }
+}
