@@ -43,7 +43,7 @@ int main()
 
     SSD1306::setup(); SSD1306::clear(); SSD1306::update();
 
-    bool px_on { true };
+    std::size_t x { 0 }, y { 0 };
 
     while ( true )
     {
@@ -51,13 +51,19 @@ int main()
         blink_on = !blink_on;
         //std::printf( "Hello, world!\n" );
 
-        SSD1306::clear();
-        SSD1306::drawpixel( 10, 10, px_on );
-        SSD1306::drawpixel( 20, 10, px_on );
-        SSD1306::drawpixel( 20, 20, px_on );
-        SSD1306::drawpixel( 10, 20, px_on );
-        px_on = !px_on;
+        //SSD1306::clear();
+        SSD1306::drawpixel( x, y, true );
         SSD1306::update();
+
+        if ( ++x >= SSD1306::WIDTH )
+        {
+            x = 0;
+            if ( ++y >= SSD1306::HEIGHT )
+            {
+                SSD1306::clear();
+                y = 0;
+            }
+        }
 
         sleep_ms( 200 );
     }
