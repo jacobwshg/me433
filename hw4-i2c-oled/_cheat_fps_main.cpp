@@ -84,6 +84,7 @@ int main()
             gpio_put( Pins::BLINK_PIN, blink_on );
             blink_then = blink_now;
             
+            // only update display when we blink
             SSD1306::clear();
             SSD1306::draw_msg( msg_V.data(), 0, 0 );
             SSD1306::draw_msg( msg_fps.data(), 0, 24 );

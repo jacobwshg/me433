@@ -56,11 +56,11 @@ int main()
 
     SSD1306::setup(); SSD1306::clear(); SSD1306::update();
 
-    SSD1306::draw_msg(
-        "When I left you, I was but the learner; now I am the Master.",
-        0, 0
-    );
-    SSD1306::update();
+    // SSD1306::draw_msg(
+    //     "When I left you, I was but the learner; now I am the Master.",
+    //     0, 0
+    // );
+    // SSD1306::update();
 
     while ( true )
     {
@@ -69,13 +69,14 @@ int main()
         const std::uint16_t adc_value = adc_read();
         const float V = ( ( float ) adc_value * 3.3f ) / ( float )( 1 << 12 );
 
-        blink_now = fps_now = get_absolute_time();
+        blink_now = get_absolute_time();
         if ( blink_now - blink_then >= 500000 ) // 500 ms
         {
             blink_on = !blink_on;
             gpio_put( Pins::BLINK_PIN, blink_on );
             blink_then = blink_now;
         }
+        fps_now = get_absolute_time();
         const absolute_time_t fps_dt = fps_now - fps_then;
         const float fps = 1e6f / ( float ) fps_dt;
         fps_then = fps_now;
