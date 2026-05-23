@@ -121,7 +121,10 @@ SSD1306::update()
     i2c_write_blocking( i2c_default, SSD1306::I2C_ADDR, SSD1306::buffer.data(), SSD1306::BUFLEN, false );
 }
 
+//
 // set a pixel value. Call update() to push to the display)
+// actually unused when drawing chars, because we draw one byte-aligned column at a time
+//
 void
 SSD1306::drawpixel(
     const std::size_t x, const std::size_t y,

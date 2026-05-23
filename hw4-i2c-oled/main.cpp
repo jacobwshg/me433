@@ -70,7 +70,7 @@ int main()
         const float V = ( ( float ) adc_value * 3.3f ) / ( float )( 1 << 12 );
 
         blink_now = get_absolute_time();
-        if ( blink_now - blink_then >= 500000 ) // 500 ms
+        if ( blink_now - blink_then >= 5e5 ) // 500 ms
         {
             blink_on = !blink_on;
             gpio_put( Pins::BLINK_PIN, blink_on );
