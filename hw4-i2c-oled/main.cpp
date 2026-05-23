@@ -1,6 +1,7 @@
 
 //#include <stdio.h>
 #include "font.h"
+#include "ssd1306.h"
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include <cstdio>
@@ -8,11 +9,9 @@
 #include <array>
 
 // I2C defines
-// This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
+// This example will use I2C0 on GPIO4 (SDA) and GPIO5 (SCL) running at 400KHz.
 // Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
 #define I2C_PORT i2c0
-//#define I2C_SDA 8
-//#define I2C_SCL 9
 
 namespace Pins
 {
@@ -31,7 +30,7 @@ int main()
 
     gpio_init( Pins::BLINK_PIN );
     gpio_set_dir( Pins::BLINK_PIN, GPIO_OUT );
-    static bool led_state { false };
+    static bool blink_on { false };
 
     // I2C Initialisation. Using it at 400Khz.
     i2c_init( I2C_PORT, 400*1000 );
@@ -42,10 +41,12 @@ int main()
     gpio_pull_up( Pins::I2C_SCL_PIN );
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
 
+    SSD1306::setup(); SSD1306::clear(); SSD1306::update();
+
     while ( true )
     {
-        gpio_put( Pins::BLINK_PIN, led_state );
-        led_state = !led_state;
+        gpio_put( Pins::BLINK_PIN, blink_on );
+        blink_on = !blink_on;
         //std::printf( "Hello, world!\n" );
         sleep_ms( 1000 );
     }
