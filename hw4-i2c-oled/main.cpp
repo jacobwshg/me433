@@ -79,25 +79,28 @@ int main()
 
     SSD1306::setup(); SSD1306::clear(); SSD1306::update();
 
-    std::size_t x {}, y {};
-    std::uint8_t byte { 0x0 };
-    int byte_idx { -1 };
-    for ( y=0; y<SSD1306::HEIGHT; ++y )
-    {
-        for ( x=0; x<SSD1306::WIDTH; ++x )
-        {
-            const std::size_t bit_idx { x % 8 };
-            if ( bit_idx == 0 )
-            {
-                ++byte_idx;
-                byte = bitmap_bit_bytes[ byte_idx ];
-            }
-            if ( 0x1 & ( byte >> ( 7 - bit_idx ) ) )
-            {
-                SSD1306::drawpixel( x, y, true );
-            }
-        }
-    }
+    // std::size_t x {}, y {};
+    // std::uint8_t byte { 0x0 };
+    // int byte_idx { -1 };
+    // for ( y=0; y<SSD1306::HEIGHT; ++y )
+    // {
+    //     for ( x=0; x<SSD1306::WIDTH; ++x )
+    //     {
+    //         const std::size_t bit_idx { x % 8 };
+    //         if ( bit_idx == 0 )
+    //         {
+    //             ++byte_idx;
+    //             byte = bitmap_bit_bytes[ byte_idx ];
+    //         }
+    //         if ( 0x1 & ( byte >> ( 7 - bit_idx ) ) )
+    //         {
+    //             SSD1306::drawpixel( x, y, true );
+    //         }
+    //     }
+    // }
+    // SSD1306::update();
+
+    SSD1306::draw_char( 'Q', 0, 0 );
     SSD1306::update();
 
     while ( true )

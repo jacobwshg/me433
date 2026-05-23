@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <string_view>
 
 // Based on the adafruit and sparkfun libraries
 #define SSD1306_MEMORYMODE          0x20 
@@ -60,6 +61,8 @@ namespace SSD1306
     void drawpixel( const std::size_t x, const std::size_t y, bool color );
     void clear( void );
 
+    void draw_char( const char c, const std::size_t x, const std::size_t y );
+    void draw_msg( const std::string_view msg, const std::size_t x, const std::size_t y );
 }
 
 /// this should be private

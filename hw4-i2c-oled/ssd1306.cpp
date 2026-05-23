@@ -2,6 +2,7 @@
 // based on adafruit and sparkfun libraries
 
 #include "ssd1306.h"
+#include "font.h"
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include <array>
@@ -96,7 +97,8 @@ SSD1306::setup( void )
 }
 
 // update every pixel on the screen
-void SSD1306::update()
+void
+SSD1306::update()
 {
     SSD1306::command( SSD1306_PAGEADDR );
     SSD1306::command( 0 );
@@ -152,12 +154,36 @@ SSD1306::clear()
     SSD1306::buffer[ 0 ] = 0x40; // first byte is part of command
 }
 
+// draw a column of pixels within a character
 static void
 SSD1306::draw_char_col(
     const std::size_t x, const std::size_t y,
     std::uint8_t col_pxs
 )
 {
+    // round down y values to nearest multiple of 8
     const std::size_t buf_byte_idx { SSD1306::xy_to_byte_idx( x, y ) };
     SSD1306::buffer[ buf_byte_idx ] = col_pxs;
+}
+
+
+void
+SSD1306::draw_char( const char c, const std::size_t x, const std::size_t y )
+{
+    // draw a character
+    const ascii_bm_t &char_bm { ASCII[ c - 0x20 ] };
+    for ( std::size_t dx = 0; dx < char_bm.size(); ++dx )
+    {
+        SSD1306::draw_char_col( x + dx, y, char_bm[ dx ] );
+    }
+}
+
+void
+SSD1306::draw_msg( const std::string_view msg, const std::size_t x, const std::size_t y )
+{
+    // draw a string of characters
+    for ( std::size_t i = 0; i < msg.size(); ++i )
+    {
+        
+    }
 }
