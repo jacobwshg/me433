@@ -64,6 +64,7 @@ target_include_directories(
 target_link_libraries(
     hw4-i2c-oled 
     hardware_i2c
+    hardware_adc
 )
 
 pico_add_extra_outputs( hw4-i2c-oled )
