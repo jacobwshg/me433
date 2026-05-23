@@ -1,8 +1,11 @@
 
 //#include <stdio.h>
+#include "font.h"
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include <cstdio>
+#include <cstdint>
+#include <array>
 
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
@@ -19,6 +22,8 @@ namespace Pins
     ;
 }
 
+using ascii_bm_t = std::array< std::uint8_t, 5 >;
+
 int main()
 {
     stdio_init_all();
@@ -31,6 +36,8 @@ int main()
     gpio_pull_up( Pins::I2C_SDA_PIN );
     gpio_pull_up( Pins::I2C_SCL_PIN );
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
+
+    std::array< std::uint8_t, 5 > a {};
 
     while ( true )
     {

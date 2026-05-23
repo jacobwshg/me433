@@ -35,7 +35,11 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable( hw4-i2c-oled main.cpp )
+add_executable(
+    hw4-i2c-oled
+    ssd1306.cpp
+    main.cpp
+)
 
 pico_set_program_name(hw4-i2c-oled "hw4-i2c-oled")
 pico_set_program_version(hw4-i2c-oled "0.1")
