@@ -43,11 +43,22 @@ int main()
 
     SSD1306::setup(); SSD1306::clear(); SSD1306::update();
 
+    bool px_on { true };
+
     while ( true )
     {
         gpio_put( Pins::BLINK_PIN, blink_on );
         blink_on = !blink_on;
         //std::printf( "Hello, world!\n" );
-        sleep_ms( 1000 );
+
+        SSD1306::clear();
+        SSD1306::drawpixel( 10, 10, px_on );
+        SSD1306::drawpixel( 20, 10, px_on );
+        SSD1306::drawpixel( 20, 20, px_on );
+        SSD1306::drawpixel( 10, 20, px_on );
+        px_on = !px_on;
+        SSD1306::update();
+
+        sleep_ms( 200 );
     }
 }
