@@ -13,26 +13,48 @@
 namespace SSD1306
 {
     static constexpr std::uint8_t I2C_ADDR { 0b0111100 }; // 7bit i2c address
-    static std::array< std::uint8_t, BUFLEN > buffer; // 128x32/8. Every bit is a pixel except first byte
+    static std::array< std::uint8_t, BUFLEN > buffer {}; // 128x32/8. Every bit is a pixel except first byte
 
-    // send a command instruction (not pixel data)
-    static void
-    command( const std::uint8_t c )
+    static inline std::size_t xy_to_byte_idx(
+        const std::size_t x, const std::size_t y
+    )
     {
-        //i2c_master_start();
-        //i2c_master_send(ssd1306_write);
-        //i2c_master_send(0x00); // bit 7 is 0 for Co bit (data bytes only), bit 6 is 0 for DC (data is a command))
-        //i2c_master_send(c);
-        //i2c_master_stop();
-
-        std::array< std::uint8_t, 2> buf { 0x00, c }; // bit 7 is 0 for Co bit (data bytes only), bit 6 is 0 for DC (data is a command))
-        i2c_write_blocking(
-            i2c_default,
-            SSD1306::I2C_ADDR,
-            buf.data(), 2,
-            false
-        );
+        //
+        // byte 0 in buf is command,
+        // pixel bytes start at idx 1
+        // pixels are packed in bytes vertically
+        //
+        std::size_t byte_idx { 1 + ( y / 8 ) * SSD1306::WIDTH + x };
+        return byte_idx;
     }
+
+    static void command( const std::uint8_t c );
+
+    static void draw_char_col(
+        const std::size_t x, const std::size_t y,
+        std::uint8_t col_pxs
+    );
+    
+}
+
+
+// send a command instruction (not pixel data)
+static void
+SSD1306::command( const std::uint8_t c )
+{
+    //i2c_master_start();
+    //i2c_master_send(ssd1306_write);
+    //i2c_master_send(0x00); // bit 7 is 0 for Co bit (data bytes only), bit 6 is 0 for DC (data is a command))
+    //i2c_master_send(c);
+    //i2c_master_stop();
+
+    std::array< std::uint8_t, 2> buf { 0x00, c }; // bit 7 is 0 for Co bit (data bytes only), bit 6 is 0 for DC (data is a command))
+    i2c_write_blocking(
+        i2c_default,
+        SSD1306::I2C_ADDR,
+        buf.data(), 2,
+        false
+    );
 }
 
 void
@@ -111,19 +133,14 @@ SSD1306::drawpixel(
         return;
     }
 
-    //
-    // byte 0 in buf is command,
-    // pixel bytes start at idx 1
-    //
-    const std::size_t buf_byte_idx = 1 + ( y / 8 ) * SSD1306::WIDTH + x;
-
+    const std::size_t buf_byte_idx { SSD1306::xy_to_byte_idx( x, y ) };
     if ( color )
     {
-        SSD1306::buffer[ buf_byte_idx ] |= ( 1 << ( y & 7 ) );
+        SSD1306::buffer[ buf_byte_idx ] |= ( 1 << ( y % 8 ) );
     }
     else
     {
-        SSD1306::buffer[ buf_byte_idx ] &= ~( 1 << ( y & 7 ) );
+        SSD1306::buffer[ buf_byte_idx ] &= ~( 1 << ( y % 8 ) );
     }
 }
 
@@ -135,21 +152,12 @@ SSD1306::clear()
     SSD1306::buffer[ 0 ] = 0x40; // first byte is part of command
 }
 
-
-namespace SSD1306
+static void
+SSD1306::draw_char_col(
+    const std::size_t x, const std::size_t y,
+    std::uint8_t col_pxs
+)
 {
-    static void
-    draw_char_col(
-        const std::size_t x, const std::size_t y,
-        std::uint8_t col_pxs
-    )
-    {
-        // draw a column of pixels for a character
-        for ( std::size_t i { 0 }; i < 8; ++i )
-        {
-            const bool color { 0x01 == ( col_pxs ) & 0x01 };
-            SSD1306::drawpixel( x, y + i, color );
-            col_pxs >>= 1;
-        }
-    }
+    const std::size_t buf_byte_idx { SSD1306::xy_to_byte_idx( x, y ) };
+    SSD1306::buffer[ buf_byte_idx ] = col_pxs;
 }
