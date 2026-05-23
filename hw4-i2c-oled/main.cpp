@@ -65,7 +65,7 @@ using ascii_bm_t = std::array< std::uint8_t, 5 >;
 
 int main()
 {
-    bool blink_on { false };
+    bool blink_on { true };
     absolute_time_t
         blink_then { 0 }, blink_now { 0 },
         fps_then { 0 }, fps_now { 0 };
@@ -78,13 +78,15 @@ int main()
     gpio_set_dir( Pins::BLINK_PIN, GPIO_OUT );
 
     // I2C Initialisation.
-    i2c_init( I2C_PORT, 1000*1000 );
+    i2c_init( I2C_PORT, 400 * 1000 );
 
     gpio_set_function( Pins::I2C_SDA_PIN, GPIO_FUNC_I2C );
     gpio_set_function( Pins::I2C_SCL_PIN, GPIO_FUNC_I2C );
     gpio_pull_up( Pins::I2C_SDA_PIN );
     gpio_pull_up( Pins::I2C_SCL_PIN );
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
+
+    gpio_put( Pins::BLINK_PIN, blink_on );
 
     adc_init();
     adc_gpio_init( Pins::ADC_PIN );
@@ -129,8 +131,8 @@ int main()
         blink_now = fps_now = get_absolute_time();
         if ( blink_now - blink_then >= 500000 ) // 500 ms
         {
-            gpio_put( Pins::BLINK_PIN, blink_on );
             blink_on = !blink_on;
+            gpio_put( Pins::BLINK_PIN, blink_on );
             blink_then = blink_now;
         }
         const absolute_time_t fps_dt = fps_now - fps_then;
