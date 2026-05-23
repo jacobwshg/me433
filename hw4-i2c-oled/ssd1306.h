@@ -58,11 +58,11 @@ namespace SSD1306
 
     void setup( void );
     void update( void );
-    void drawpixel( const std::size_t x, const std::size_t y, bool color );
+    void drawpixel( const std::size_t, const std::size_t, bool );
     void clear( void );
 
-    void draw_char( const char c, const std::size_t x, const std::size_t y );
-    void draw_msg( const std::string_view msg, const std::size_t x, const std::size_t y );
+    void draw_char( const char, const std::size_t, const std::size_t );
+    void draw_msg( const std::string_view, const std::size_t, const std::size_t );
 }
 
 /// this should be private

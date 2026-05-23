@@ -29,11 +29,11 @@ namespace SSD1306
         return byte_idx;
     }
 
-    static void command( const std::uint8_t c );
+    static void command( const std::uint8_t );
 
     static void draw_char_col(
-        const std::size_t x, const std::size_t y,
-        std::uint8_t col_pxs
+        const std::size_t, const std::size_t,
+        std::uint8_t
     );
     
 }
@@ -179,11 +179,22 @@ SSD1306::draw_char( const char c, const std::size_t x, const std::size_t y )
 }
 
 void
-SSD1306::draw_msg( const std::string_view msg, const std::size_t x, const std::size_t y )
+SSD1306::draw_msg( const std::string_view msg, const std::size_t x0, const std::size_t y0 )
 {
+    std::size_t x { x0 }, y { y0 };
     // draw a string of characters
     for ( std::size_t i = 0; i < msg.size(); ++i )
     {
-        
+        SSD1306::draw_char( msg[ i ], x, y );
+        x += 6;
+        if ( x >= SSD1306::WIDTH )
+        {
+            x = 0;
+            y += 8;
+        }
+        if ( y >= SSD1306::HEIGHT )
+        {
+            break;
+        }
     }
 }

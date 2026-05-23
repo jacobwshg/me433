@@ -100,15 +100,20 @@ int main()
     // }
     // SSD1306::update();
 
-    SSD1306::draw_char( 'Q', 0, 0 );
-    SSD1306::update();
-
     while ( true )
     {
         gpio_put( Pins::BLINK_PIN, blink_on );
         blink_on = !blink_on;
         //std::printf( "Hello, world!\n" );
 
+        SSD1306::clear();
+        SSD1306::draw_msg( ">whoami", 0, 0 );
+        SSD1306::update();
+        sleep_ms( 250 );
+
+        SSD1306::clear();
+        SSD1306::draw_msg( ">whoami_", 0, 0 );
+        SSD1306::update();
         sleep_ms( 250 );
     }
 }
