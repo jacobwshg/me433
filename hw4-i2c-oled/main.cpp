@@ -53,7 +53,7 @@ int main()
     adc_gpio_init( Pins::ADC_PIN );
     adc_select_input( Pins::ADC_IN_PIN );
 
-    SSD1306::setup(); SSD1306::clear(); SSD1306::update();
+    SSD1306::init(); 
 
     // SSD1306::draw_msg(
     //     "When I left you, I was but the learner; now I am the Master.",

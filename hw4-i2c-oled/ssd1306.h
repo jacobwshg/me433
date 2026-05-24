@@ -56,11 +56,12 @@ namespace SSD1306
     static constexpr std::size_t WIDTH { 128 }, HEIGHT { 32 };
     static constexpr std::size_t BUFLEN { ( WIDTH * HEIGHT ) / 8 + 1 };
 
-    void setup( void );
     void update( void );
-    void drawpixel( const std::size_t, const std::size_t, bool );
     void clear( void );
 
+    void init( void );
+
+    void drawpixel( const std::size_t, const std::size_t, bool );
     void draw_char( const char, const std::size_t, const std::size_t );
     void draw_msg( const std::string_view, const std::size_t, const std::size_t );
 }
@@ -69,3 +70,4 @@ namespace SSD1306
 //void ssd1306_command(unsigned char c);
 
 #endif
+

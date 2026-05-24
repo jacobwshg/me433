@@ -58,8 +58,42 @@ SSD1306::command( const std::uint8_t c )
     );
 }
 
+// update every pixel on the screen
 void
-SSD1306::setup( void )
+SSD1306::update()
+{
+    SSD1306::command( SSD1306_PAGEADDR );
+    SSD1306::command( 0 );
+    SSD1306::command( 0xFF );
+    SSD1306::command( SSD1306_COLUMNADDR );
+    SSD1306::command( 0 );
+    SSD1306::command( 128 - 1 ); // Width
+
+    /*
+    i2c_master_start();
+    i2c_master_send(ssd1306_write);
+    i2c_master_send(0x40); // send pixel data
+    // send every pixel
+    while (count--) {
+        i2c_master_send(*ptr++);
+    }
+    i2c_master_stop();
+    */
+
+    i2c_write_blocking( i2c_default, SSD1306::I2C_ADDR, SSD1306::buffer.data(), SSD1306::BUFLEN, false );
+}
+
+// zero every pixel value
+void
+SSD1306::clear()
+{
+    SSD1306::buffer.fill( 0x00 ); // make every bit a 0, memset in string.h
+    SSD1306::buffer[ 0 ] = 0x40; // first byte is part of command
+}
+
+
+void
+SSD1306::init( void )
 {
     // first byte in ssd1306_buffer is a command
     SSD1306::buffer[ 0 ] = 0x40;
@@ -96,31 +130,6 @@ SSD1306::setup( void )
     SSD1306::update();
 }
 
-// update every pixel on the screen
-void
-SSD1306::update()
-{
-    SSD1306::command( SSD1306_PAGEADDR );
-    SSD1306::command( 0 );
-    SSD1306::command( 0xFF );
-    SSD1306::command( SSD1306_COLUMNADDR );
-    SSD1306::command( 0 );
-    SSD1306::command( 128 - 1 ); // Width
-
-    /*
-    i2c_master_start();
-    i2c_master_send(ssd1306_write);
-    i2c_master_send(0x40); // send pixel data
-    // send every pixel
-    while (count--) {
-        i2c_master_send(*ptr++);
-    }
-    i2c_master_stop();
-    */
-
-    i2c_write_blocking( i2c_default, SSD1306::I2C_ADDR, SSD1306::buffer.data(), SSD1306::BUFLEN, false );
-}
-
 //
 // set a pixel value. Call update() to push to the display)
 // actually unused when drawing chars, because we draw one byte-aligned column at a time
@@ -149,13 +158,6 @@ SSD1306::drawpixel(
     }
 }
 
-// zero every pixel value
-void
-SSD1306::clear()
-{
-    SSD1306::buffer.fill( 0x00 ); // make every bit a 0, memset in string.h
-    SSD1306::buffer[ 0 ] = 0x40; // first byte is part of command
-}
 
 // draw a column of pixels within a character
 static void
@@ -204,3 +206,4 @@ SSD1306::draw_msg( const std::string_view msg, const std::size_t x0, const std::
         x += 6;
     }
 }
+
