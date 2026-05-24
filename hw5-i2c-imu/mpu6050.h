@@ -1,4 +1,7 @@
 
+#ifndef MPU6050_H__
+#define MPU6050_H__
+
 #include "i2c_def.h"
 #include "hardware/i2c.h"
 #include "hardware/i2c.h"
@@ -90,3 +93,5 @@ namespace MPU6050
     }
 
 }
+
+#endif
