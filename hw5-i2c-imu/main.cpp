@@ -39,12 +39,11 @@ int main()
 
     MPU6050::init();
 
-    blink_on = !blink_on; gpio_put( BLINK_PIN, blink_on );
+    //blink_on = !blink_on; gpio_put( BLINK_PIN, blink_on );
 
     MPU6050::SensorData sensordata {};
 
     std::array< char, 64 > msgbuf {};
-
 
 
     while ( true )
@@ -79,12 +78,10 @@ int main()
         static constexpr px_pos_t MAX_OFS { static_cast< px_pos_t >( std::min( SSD1306::WIDTH/2, SSD1306::HEIGHT/2 ) ) };
         static constexpr px_pos_t I16_MAX { std::numeric_limits< px_pos_t >::max() };
         static constexpr float F_I16_MAX { static_cast< float >( I16_MAX ) };
+        static constexpr float SCALE { static_cast< float >( MAX_OFS ) / F_I16_MAX };
 
-        const float x_scale { static_cast< float >( sensordata.accel_x ) / F_I16_MAX }; 
-        const float y_scale { static_cast< float >( sensordata.accel_y ) / F_I16_MAX }; 
-
-        const px_pos_t x_ofs { static_cast< px_pos_t >( x_scale * MAX_OFS ) };
-        const px_pos_t y_ofs { static_cast< px_pos_t >( y_scale * MAX_OFS ) };
+        const px_pos_t x_ofs { static_cast< px_pos_t >( sensordata.accel_x * SCALE ) };
+        const px_pos_t y_ofs { static_cast< px_pos_t >( sensordata.accel_y * SCALE ) };
 
         const px_pos_t
             x { SSD1306::XC + x_ofs },
@@ -93,9 +90,9 @@ int main()
         SSD1306::draw_segment( SSD1306::XC, SSD1306::YC, x, y );
         SSD1306::update();
 
-        gpio_put( BLINK_PIN, blink_on );
-        blink_on = !blink_on;
-        sleep_ms( 1000 );
+        //gpio_put( BLINK_PIN, blink_on );
+        //blink_on = !blink_on;
+        sleep_ms( 10 );
 
     }
 }

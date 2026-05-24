@@ -255,9 +255,13 @@ namespace SSD1306
         ++abs_dx;
         ++abs_dy;
 
-        if ( abs_dx <= abs_dy )
+        if ( abs_dx <= abs_dy ) // steep slope
         {
-            const px_pos_t sct_dy { dy / abs_dx };
+            // calculate how many y pixels to draw for each x pixel
+            px_pos_t sct_dy { ( abs_dy + abs_dx - 1 ) / abs_dx };
+            if ( sct_dy == 0 ) { ++sct_dy; }
+            if ( dy < 0 ) { sct_dy = -sct_dy; }
+
             px_pos_t sct_y_base { y0 };
             for ( px_pos_t x { x0 }; ; )
             {
@@ -271,9 +275,12 @@ namespace SSD1306
                 if ( dx >= 0 ) { ++x; } else { --x; }
             }
         }
-        else
+        else // shallow slope
         {
-            const px_pos_t sct_dx { dx / abs_dy };
+            px_pos_t sct_dx { ( abs_dx + abs_dy - 1 ) / abs_dy };
+            if ( sct_dx == 0 ) { ++sct_dx; }
+            if ( dx < 0 ) { sct_dx = -sct_dx; }
+
             px_pos_t sct_x_base { x0 };
             for ( px_pos_t y { y0 }; ; )
             {
