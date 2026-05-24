@@ -38,6 +38,7 @@ int main()
 
     gpio_init( Pins::BLINK_PIN );
     gpio_set_dir( Pins::BLINK_PIN, GPIO_OUT );
+    gpio_put( Pins::BLINK_PIN, blink_on );
 
     // I2C Initialisation.
     i2c_init( I2C_PORT, 400 * 1000 );
@@ -47,8 +48,6 @@ int main()
     gpio_pull_up( Pins::I2C_SDA_PIN );
     gpio_pull_up( Pins::I2C_SCL_PIN );
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
-
-    gpio_put( Pins::BLINK_PIN, blink_on );
 
     adc_init();
     adc_gpio_init( Pins::ADC_PIN );
