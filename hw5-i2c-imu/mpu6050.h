@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <array>
 #include <bit>
+#include <cstring>
 
 namespace MPU6050
 {
@@ -68,12 +69,20 @@ namespace MPU6050
     static inline void init( void )
     {
         // Wake up the MPU6050 by writing 0 to the PWR_MGMT_1 register
-        std::array< std::uint8_t, 2 > buf { Regs::PWR_MGMT_1, 0 };
-        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, buf.data(), buf.size(), true );
+        std::array< std::uint8_t, 2 > buf { Regs::PWR_MGMT_1, 0x00 };
+        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
         buf[ 0 ] = Regs::ACCEL_CONFIG;
-        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, buf.data(), buf.size(), true );
+        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
         buf[ 0 ] = Regs::GYRO_CONFIG;
         i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+    }
+
+    static inline std::uint8_t read_whoami( void )
+    {
+        std::uint8_t whoami {};
+        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, &Regs::WHO_AM_I, 1, true );
+        i2c_read_blocking( i2c_default, MPU6050::I2C_ADDR, &whoami, 1, false );
+        return whoami;
     }
 
     // Function to read sensor data

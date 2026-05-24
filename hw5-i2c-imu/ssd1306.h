@@ -35,17 +35,22 @@
 
 namespace SSD1306
 {
-
-    static constexpr std::size_t WIDTH { 128 }, HEIGHT { 32 };
-    static constexpr std::size_t BUFLEN { ( WIDTH * HEIGHT ) / 8 + 1 };
-
+    using px_pos_t = std::int16_t;
 
     static constexpr std::uint8_t I2C_ADDR { 0b0111100 }; // 7bit i2c address
+
+    static constexpr px_pos_t WIDTH { 128 }, HEIGHT { 32 };
+    static constexpr px_pos_t BUFLEN { ( WIDTH * HEIGHT ) / 8 + 1 };
+
+    static constexpr px_pos_t
+        XC { SSD1306::WIDTH / 2 },
+        YC ( SSD1306::HEIGHT / 2 );
+
     static inline std::array< std::uint8_t, BUFLEN > buffer {}; // 128x32/8. Every bit is a pixel except first byte
 
     // convert x,y pixel coordinates to byte index in the buffer
-    static inline std::size_t xy_to_byte_idx(
-        const std::size_t x, const std::size_t y
+    static inline px_pos_t xy_to_byte_idx(
+        const px_pos_t x, const px_pos_t y
     )
     {
         //
@@ -53,7 +58,7 @@ namespace SSD1306
         // pixel bytes start at idx 1
         // pixels are packed in bytes vertically
         //
-        std::size_t byte_idx { 1 + ( y / 8 ) * SSD1306::WIDTH + x };
+        px_pos_t byte_idx { 1 + ( y / 8 ) * SSD1306::WIDTH + x };
         return byte_idx;
     }
 
@@ -154,7 +159,7 @@ namespace SSD1306
     //
     static inline void
     drawpixel(
-        const std::size_t x, const std::size_t y,
+        const px_pos_t x, const px_pos_t y,
         bool color
     )
     {
@@ -165,7 +170,7 @@ namespace SSD1306
             return;
         }
 
-        const std::size_t buf_byte_idx { SSD1306::xy_to_byte_idx( x, y ) };
+        const px_pos_t buf_byte_idx { SSD1306::xy_to_byte_idx( x, y ) };
         if ( color )
         {
             SSD1306::buffer[ buf_byte_idx ] |= ( 1 << ( y % 8 ) );
@@ -179,23 +184,23 @@ namespace SSD1306
     // draw a column of pixels within a character
     static inline void
     draw_char_col(
-        const std::size_t x, const std::size_t y,
+        const px_pos_t x, const px_pos_t y,
         std::uint8_t col_pxs
     )
     {
         // round down y values to nearest multiple of 8
-        const std::size_t buf_byte_idx { SSD1306::xy_to_byte_idx( x, y ) };
+        const px_pos_t buf_byte_idx { SSD1306::xy_to_byte_idx( x, y ) };
         SSD1306::buffer[ buf_byte_idx ] = col_pxs;
     }
 
     // draw a character
     static inline void
-    draw_char( const char c, const std::size_t x, const std::size_t y )
+    draw_char( const char c, const px_pos_t x, const px_pos_t y )
     {
         if ( ( c < 0x20 ) || ( c > 0x7F ) ) { return; }
 
         const ascii_bm_t &char_bm { ASCII[ c - 0x20 ] };
-        for ( std::size_t dx = 0; dx < char_bm.size(); ++dx )
+        for ( px_pos_t dx = 0; dx < char_bm.size(); ++dx )
         {
             SSD1306::draw_char_col( x + dx, y, char_bm[ dx ] );
         }
@@ -203,10 +208,10 @@ namespace SSD1306
 
     // draw a string of characters within the display bounds
     static inline void
-    draw_msg( const std::string_view msg, const std::size_t x0, const std::size_t y0 )
+    draw_msg( const std::string_view msg, const px_pos_t x0, const px_pos_t y0 )
     {
-        std::size_t x { x0 }, y { y0 };
-        for ( std::size_t i = 0; i < msg.size(); ++i )
+        px_pos_t x { x0 }, y { y0 };
+        for ( px_pos_t i = 0; i < msg.size(); ++i )
         {
             if ( x+6 >= SSD1306::WIDTH )
             {
@@ -225,16 +230,13 @@ namespace SSD1306
     static inline void
     draw_crosshair( void )
     {
-        static constexpr std::size_t
-            xc { SSD1306::WIDTH / 2 },
-            yc ( SSD1306::HEIGHT / 2 );
 
-        for ( std::size_t x { xc-3 }; x < xc+4; ++x )
+        for ( px_pos_t x { XC-3 }; x < XC+4; ++x )
         {
-            drawpixel( x, yc, true );
+            drawpixel( x, YC, true );
         }
-        draw_char_col( xc, yc-1, 0b1110'0000 );
-        draw_char_col( xc, yc,   0b0000'1111 );
+        draw_char_col( XC, YC-1, 0b1110'0000 );
+        draw_char_col( XC, YC,   0b0000'1111 );
     }
 
 }
