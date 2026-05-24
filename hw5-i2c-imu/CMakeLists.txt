@@ -32,10 +32,13 @@ project( hw5-i2c-imu C CXX ASM )
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
-
+    
 # Add executable. Default name is the project name, version 0.1
 
-add_executable( hw5-i2c-imu main.cpp )
+add_executable(
+    hw5-i2c-imu
+    main.cpp
+)
 
 pico_set_program_name( hw5-i2c-imu "hw5-i2c-imu" )
 pico_set_program_version( hw5-i2c-imu "0.1" )

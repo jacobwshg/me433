@@ -13,9 +13,17 @@
 #define I2C_SDA 4
 #define I2C_SCL 5
 
+#define BLINK_PIN 0
+
 int main()
 {
+
+    bool blink_on { true };
+
     stdio_init_all();
+
+    gpio_init( BLINK_PIN );
+    gpio_set_dir( BLINK_PIN, GPIO_OUT );
 
     // I2C Initialisation. Using it at 400Khz.
     i2c_init( I2C_PORT, 400*1000 );
@@ -26,11 +34,16 @@ int main()
     gpio_pull_up( I2C_SCL );
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
 
+    SSD1306::setup(); SSD1306::clear(); SSD1306::update();
+    SSD1306::draw_crosshair();
+    SSD1306::update();
+
     MPU6050::init();
 
     while ( true )
     {
-        std::printf( "Hello, world!\n" );
-        sleep_ms( 1000 );
+        gpio_put( BLINK_PIN, blink_on );
+        blink_on = !blink_on;
+        sleep_ms( 500 );
     }
 }

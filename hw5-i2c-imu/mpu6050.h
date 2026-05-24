@@ -65,7 +65,7 @@ namespace MPU6050
     };
 
     // Function to initialize the MPU6050
-    void init( void )
+    static inline void init( void )
     {
         // Wake up the MPU6050 by writing 0 to the PWR_MGMT_1 register
         std::array< std::uint8_t, 2 > buf { Regs::PWR_MGMT_1, 0 };
@@ -77,7 +77,7 @@ namespace MPU6050
     }
 
     // Function to read sensor data
-    void read_sensor( struct SensorData &sensor_data )
+    static inline void read_sensor( struct SensorData &sensor_data )
     {
         std::array< std::uint8_t, 14 > buf {};
         i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, &Regs::ACCEL_XOUT_H, 1, true );
