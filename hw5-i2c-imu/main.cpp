@@ -34,7 +34,7 @@ int main()
     gpio_pull_up( I2C_SCL );
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
 
-    SSD1306::setup(); SSD1306::clear(); SSD1306::update();
+    SSD1306::init();
     SSD1306::draw_crosshair();
     SSD1306::update();
 

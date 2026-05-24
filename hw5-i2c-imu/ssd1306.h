@@ -111,7 +111,7 @@ namespace SSD1306
 
 
     static inline void
-    setup( void )
+    init( void )
     {
         // first byte in ssd1306_buffer is a command
         SSD1306::buffer[ 0 ] = 0x40;
@@ -147,7 +147,6 @@ namespace SSD1306
         SSD1306::clear();
         SSD1306::update();
     }
-
 
     //
     // set a pixel value. Call update() to push to the display)
