@@ -70,18 +70,18 @@ namespace MPU6050
     {
         // Wake up the MPU6050 by writing 0 to the PWR_MGMT_1 register
         std::array< std::uint8_t, 2 > buf { Regs::PWR_MGMT_1, 0x00 };
-        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
         buf[ 0 ] = Regs::ACCEL_CONFIG;
-        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
         buf[ 0 ] = Regs::GYRO_CONFIG;
-        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
     }
 
     static inline std::uint8_t read_whoami( void )
     {
         std::uint8_t whoami {};
-        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, &Regs::WHO_AM_I, 1, true );
-        i2c_read_blocking( i2c_default, MPU6050::I2C_ADDR, &whoami, 1, false );
+        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, &Regs::WHO_AM_I, 1, true );
+        i2c_read_blocking( I2C_PORT, MPU6050::I2C_ADDR, &whoami, 1, false );
         return whoami;
     }
 
@@ -89,8 +89,8 @@ namespace MPU6050
     static inline void read_sensor( struct SensorData &sensor_data )
     {
         std::array< std::uint8_t, 14 > buf {};
-        i2c_write_blocking( i2c_default, MPU6050::I2C_ADDR, &Regs::ACCEL_XOUT_H, 1, true );
-        i2c_read_blocking( i2c_default, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, &Regs::ACCEL_XOUT_H, 1, true );
+        i2c_read_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
 
         sensor_data.accel_x = *( std::bit_cast< std::int16_t * >( &buf[ 0 ] ) );
         sensor_data.accel_y = *( std::bit_cast< std::int16_t * >( &buf[ 2 ] ) );

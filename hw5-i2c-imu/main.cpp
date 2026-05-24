@@ -9,24 +9,19 @@
 #include <limits>
 #include <array>
 
-// I2C defines
-// This example will use I2C0 on GPIO4 (SDA) and GPIO5 (SCL) running at 400KHz.
-// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
-#define I2C_SDA 4
-#define I2C_SCL 5
-
 #define BLINK_PIN 0
 
 int main()
 {
     using SSD1306::px_pos_t;
 
-    bool blink_on { true };
+    int blink_on { 1 };
 
     stdio_init_all();
 
     gpio_init( BLINK_PIN );
     gpio_set_dir( BLINK_PIN, GPIO_OUT );
+    gpio_put( BLINK_PIN, blink_on );
 
     // I2C Initialisation. Using it at 400Khz.
     i2c_init( I2C_PORT, 400*1000 );
@@ -42,7 +37,11 @@ int main()
     SSD1306::draw_crosshair();
     SSD1306::update();
 
+    sleep_ms( 1000 );
+
     MPU6050::init();
+
+    blink_on = !blink_on; gpio_put( BLINK_PIN, blink_on );
 
     MPU6050::SensorData sensordata {};
 

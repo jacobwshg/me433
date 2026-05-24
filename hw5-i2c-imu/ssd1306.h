@@ -3,6 +3,7 @@
 #define SSD1306_H__
 
 #include "font.h"
+#include "i2c_def.h"
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include <array>
@@ -74,7 +75,7 @@ namespace SSD1306
 
         std::array< std::uint8_t, 2> buf { 0x00, c }; // bit 7 is 0 for Co bit (data bytes only), bit 6 is 0 for DC (data is a command))
         i2c_write_blocking(
-            i2c_default,
+            I2C_PORT,
             SSD1306::I2C_ADDR,
             buf.data(), 2,
             false
@@ -103,7 +104,7 @@ namespace SSD1306
         i2c_master_stop();
         */
 
-        i2c_write_blocking( i2c_default, SSD1306::I2C_ADDR, SSD1306::buffer.data(), SSD1306::BUFLEN, false );
+        i2c_write_blocking( I2C_PORT, SSD1306::I2C_ADDR, SSD1306::buffer.data(), SSD1306::BUFLEN, false );
     }
 
     // zero every pixel value
