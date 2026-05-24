@@ -258,38 +258,38 @@ namespace SSD1306
         if ( abs_dx <= abs_dy ) // steep slope
         {
             // calculate how many y pixels to draw for each x pixel
-            px_pos_t sct_dy { ( abs_dy + abs_dx - 1 ) / abs_dx };
-            if ( sct_dy == 0 ) { ++sct_dy; }
-            if ( dy < 0 ) { sct_dy = -sct_dy; }
+            px_pos_t slice_dy { ( abs_dy + abs_dx - 1 ) / abs_dx };
+            if ( slice_dy == 0 ) { ++slice_dy; }
+            if ( dy < 0 ) { slice_dy = -slice_dy; }
 
-            px_pos_t sct_y_base { y0 };
+            px_pos_t slice_y_base { y0 };
             for ( px_pos_t x { x0 }; ; )
             {
-                for ( px_pos_t y { sct_y_base }; y != sct_y_base + sct_dy; )
+                for ( px_pos_t y { slice_y_base }; y != slice_y_base + slice_dy; )
                 {
                     drawpixel( x, y, true );
                     if ( dy >= 0 ) { ++y; } else { --y; }
                 }
-                sct_y_base += sct_dy;
+                slice_y_base += slice_dy;
                 if ( x == x1 ) { break; }
                 if ( dx >= 0 ) { ++x; } else { --x; }
             }
         }
         else // shallow slope
         {
-            px_pos_t sct_dx { ( abs_dx + abs_dy - 1 ) / abs_dy };
-            if ( sct_dx == 0 ) { ++sct_dx; }
-            if ( dx < 0 ) { sct_dx = -sct_dx; }
+            px_pos_t slice_dx { ( abs_dx + abs_dy - 1 ) / abs_dy };
+            if ( slice_dx == 0 ) { ++slice_dx; }
+            if ( dx < 0 ) { slice_dx = -slice_dx; }
 
-            px_pos_t sct_x_base { x0 };
+            px_pos_t slice_x_base { x0 };
             for ( px_pos_t y { y0 }; ; )
             {
-                for ( px_pos_t x { sct_x_base }; x != sct_x_base+sct_dx; )
+                for ( px_pos_t x { slice_x_base }; x != slice_x_base+slice_dx; )
                 {
                     drawpixel( x, y, true );
                     if ( dx >= 0 ) { ++x; } else { --x; }
                 }
-                sct_x_base += sct_dx;
+                slice_x_base += slice_dx;
                 if ( y == y1 ) { break; }
                 if ( dy>=0 ) { ++y; } else { --y; }
             }
