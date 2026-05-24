@@ -13,7 +13,7 @@
 #include <string_view>
 
 // Based on the adafruit and sparkfun libraries
-#define SSD1306_MEMORYMODE          0x20 
+#define SSD1306_MEMORYMODE          0x20
 #define SSD1306_COLUMNADDR          0x21 
 #define SSD1306_PAGEADDR            0x22 
 #define SSD1306_SETCONTRAST         0x81 
@@ -238,6 +238,55 @@ namespace SSD1306
         }
         draw_char_col( XC, YC-1, 0b1110'0000 );
         draw_char_col( XC, YC,   0b0000'1111 );
+    }
+
+    static inline void
+    draw_segment(
+        const px_pos_t x0, const px_pos_t y0,
+        const px_pos_t x1, const px_pos_t y1
+    )
+    {
+        const px_pos_t
+            dx { x1 - x0 },
+            dy { y1 - y0 };
+        px_pos_t
+            abs_dx { dx>=0? dx: -dx },
+            abs_dy { dy>=0? dy: -dy };
+        ++abs_dx;
+        ++abs_dy;
+
+        if ( abs_dx <= abs_dy )
+        {
+            const px_pos_t sct_dy { dy / abs_dx };
+            px_pos_t sct_y_base { y0 };
+            for ( px_pos_t x { x0 }; ; )
+            {
+                for ( px_pos_t y { sct_y_base }; y != sct_y_base + sct_dy; )
+                {
+                    drawpixel( x, y, true );
+                    if ( dy >= 0 ) { ++y; } else { --y; }
+                }
+                sct_y_base += sct_dy;
+                if ( x == x1 ) { break; }
+                if ( dx >= 0 ) { ++x; } else { --x; }
+            }
+        }
+        else
+        {
+            const px_pos_t sct_dx { dx / abs_dy };
+            px_pos_t sct_x_base { x0 };
+            for ( px_pos_t y { y0 }; ; )
+            {
+                for ( px_pos_t x { sct_x_base }; x != sct_x_base+sct_dx; )
+                {
+                    drawpixel( x, y, true );
+                    if ( dx >= 0 ) { ++x; } else { --x; }
+                }
+                sct_x_base += sct_dx;
+                if ( y == y1 ) { break; }
+                if ( dy>=0 ) { ++y; } else { --y; }
+            }
+        }
     }
 
 }
