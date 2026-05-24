@@ -26,10 +26,8 @@ int main()
     // I2C Initialisation. Using it at 400Khz.
     i2c_init( I2C_PORT, 400*1000 );
 
-    gpio_set_function( I2C_OLED_SDA_PIN, GPIO_FUNC_I2C ); gpio_pull_up( I2C_OLED_SDA_PIN );
-    gpio_set_function( I2C_OLED_SCL_PIN, GPIO_FUNC_I2C ); gpio_pull_up( I2C_OLED_SCL_PIN );
-    gpio_set_function( I2C_IMU_SDA_PIN, GPIO_FUNC_I2C );  gpio_pull_up( I2C_IMU_SDA_PIN );
-    gpio_set_function( I2C_IMU_SCL_PIN, GPIO_FUNC_I2C );  gpio_pull_up( I2C_IMU_SCL_PIN );
+    gpio_set_function( I2C_SDA_PIN, GPIO_FUNC_I2C ); gpio_pull_up( I2C_SDA_PIN );
+    gpio_set_function( I2C_SCL_PIN, GPIO_FUNC_I2C ); gpio_pull_up( I2C_SCL_PIN );
 
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
 
@@ -63,13 +61,13 @@ int main()
         SSD1306::draw_msg( msgbuf.data(), 0, 0 );
         msgbuf.fill( 0x0 );
 
-        snprintf( msgbuf.data(), msgbuf.size(), "accel_x: 0x%04x", sensordata.accel_x );
+        snprintf( msgbuf.data(), msgbuf.size(), "accel_x: %d", sensordata.accel_x );
         SSD1306::draw_msg( msgbuf.data(), 0, 8 );
         msgbuf.fill( 0x0 );
-        snprintf( msgbuf.data(), msgbuf.size(), "accel_y: 0x%04x", sensordata.accel_y );
+        snprintf( msgbuf.data(), msgbuf.size(), "accel_y: %d", sensordata.accel_y );
         SSD1306::draw_msg( msgbuf.data(), 0, 16 );
         msgbuf.fill( 0x0 );
-        snprintf( msgbuf.data(), msgbuf.size(), "accel_z: 0x%04x", sensordata.accel_z );
+        snprintf( msgbuf.data(), msgbuf.size(), "accel_z: %d", sensordata.accel_z );
         SSD1306::draw_msg( msgbuf.data(), 0, 24 );
         msgbuf.fill( 0x0 );
 
@@ -88,6 +86,10 @@ int main()
             y { SSD1306::YC + y_ofs }; 
         SSD1306::drawpixel( x, y, true );
         SSD1306::update();
+
+        gpio_put( BLINK_PIN, blink_on );
+        blink_on = !blink_on;
+        sleep_ms( 500 );
 
     }
 }
