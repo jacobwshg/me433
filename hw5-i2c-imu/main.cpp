@@ -1,9 +1,11 @@
 
 #include "mpu6050.h"
+#include "ssd1306.h"
 #include "i2c_def.h"
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include <cstdio>
+#include <cstring>
 
 // I2C defines
 // This example will use I2C0 on GPIO4 (SDA) and GPIO5 (SCL) running at 400KHz.
