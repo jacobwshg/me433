@@ -1,7 +1,7 @@
 
 #include "mpu6050.h"
 #include "ssd1306.h"
-#include "i2c_def.h"
+#include "i2c_util.h"
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include <cstdio>
@@ -24,7 +24,7 @@ int main()
     gpio_put( BLINK_PIN, blink_on );
 
     // I2C Initialisation. Using it at 400Khz.
-    i2c_init( I2C_PORT, 400*1000 );
+    i2c_init( I2C_PORT, 100*1000 );
 
     gpio_set_function( I2C_SDA_PIN, GPIO_FUNC_I2C ); gpio_pull_up( I2C_SDA_PIN );
     gpio_set_function( I2C_SCL_PIN, GPIO_FUNC_I2C ); gpio_pull_up( I2C_SCL_PIN );
@@ -38,13 +38,13 @@ int main()
     sleep_ms( 1000 );
 
     MPU6050::init();
+    const std::uint8_t whoami { MPU6050::read_whoami() };
 
     //blink_on = !blink_on; gpio_put( BLINK_PIN, blink_on );
 
-    MPU6050::SensorData sensordata {};
+    MPU6050::sensor_data_t sensordata {};
 
     std::array< char, 64 > msgbuf {};
-
 
     while ( true )
     {
@@ -60,9 +60,17 @@ int main()
         snprintf( msgbuf.data(), msgbuf.size(), "whoami:" );
         SSD1306::draw_msg( msgbuf.data(), 0, 0 );
         msgbuf.fill( 0x0 );
-        const std::uint8_t whoami { MPU6050::read_whoami() };
         snprintf( msgbuf.data(), msgbuf.size(), "0x%02x", whoami );
         SSD1306::draw_msg( msgbuf.data(), 0, 8 );
+        msgbuf.fill( 0x0 );
+
+        snprintf( msgbuf.data(), msgbuf.size(), "temp:" );
+        SSD1306::draw_msg( msgbuf.data(), 0, 16 );
+        msgbuf.fill( 0x0 );
+        const std::int16_t temp_raw { sensordata[ MPU6050::SensorId::TEMP ] };
+        const float temp { static_cast< float >( temp_raw ) / 340.0F + 36.53F };
+        snprintf( msgbuf.data(), msgbuf.size(), "%05.2f C", temp );
+        SSD1306::draw_msg( msgbuf.data(), 0, 24 );
         msgbuf.fill( 0x0 );
 
         // snprintf( msgbuf.data(), msgbuf.size(), "accel_x: %d", sensordata.accel_x );
@@ -80,8 +88,8 @@ int main()
         static constexpr float F_I16_MAX { static_cast< float >( I16_MAX ) };
         static constexpr float SCALE { static_cast< float >( MAX_OFS ) / F_I16_MAX };
 
-        const px_pos_t x_ofs { static_cast< px_pos_t >( sensordata.accel_x * SCALE ) };
-        const px_pos_t y_ofs { static_cast< px_pos_t >( sensordata.accel_y * SCALE ) };
+        const px_pos_t x_ofs { static_cast< px_pos_t >( sensordata[ MPU6050::SensorId::ACCEL_X ] * SCALE ) };
+        const px_pos_t y_ofs { static_cast< px_pos_t >( sensordata[ MPU6050::SensorId::ACCEL_Y ] * SCALE ) };
 
         const px_pos_t
             x { SSD1306::XC + x_ofs },
@@ -92,7 +100,7 @@ int main()
 
         //gpio_put( BLINK_PIN, blink_on );
         //blink_on = !blink_on;
-        sleep_ms( 10 );
+        sleep_ms( 100 );
 
     }
 }

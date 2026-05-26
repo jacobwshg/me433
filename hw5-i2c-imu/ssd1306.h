@@ -3,7 +3,7 @@
 #define SSD1306_H__
 
 #include "font.h"
-#include "i2c_def.h"
+#include "i2c_util.h"
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include <array>

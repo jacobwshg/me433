@@ -2,18 +2,46 @@
 #ifndef MPU6050_H__
 #define MPU6050_H__
 
-#include "i2c_def.h"
+#include "i2c_util.h"
 #include "hardware/i2c.h"
 #include "hardware/i2c.h"
 #include <cstdint>
 #include <array>
 #include <bit>
 #include <cstring>
+#include <cstddef>
 
 namespace MPU6050
 {
     // I2C address of the MPU6050
     static constexpr std::uint8_t I2C_ADDR { 0x68 };
+
+    // struct SensorData
+    // {
+    //     std::int16_t accel_x {};
+    //     std::int16_t accel_y {};
+    //     std::int16_t accel_z {};
+
+    //     std::int16_t temp {};
+
+    //     std::int16_t gyro_x {};
+    //     std::int16_t gyro_y {};
+    //     std::int16_t gyro_z {};
+    // };
+
+    using sensor_data_t = std::array< std::int16_t, 7 >;
+    namespace SensorId
+    {
+        static constexpr std::size_t
+            ACCEL_X { 0 },
+            ACCEL_Y { 1 },
+            ACCEL_Z { 2 },
+            TEMP    { 3 },
+            GYRO_X  { 4 },
+            GYRO_Y  { 5 },
+            GYRO_Z  { 6 }
+            ;
+    }
 
     // Register addresses
     namespace Regs
@@ -52,18 +80,7 @@ namespace MPU6050
             ;
     }
 
-    struct SensorData
-    {
-        std::int16_t accel_x {};
-        std::int16_t accel_y {};
-        std::int16_t accel_z {};
 
-        std::int16_t temp {};
-
-        std::int16_t gyro_x {};
-        std::int16_t gyro_y {};
-        std::int16_t gyro_z {};
-    };
 
     // Function to initialize the MPU6050
     static inline void init( void )
@@ -71,8 +88,17 @@ namespace MPU6050
         // Wake up the MPU6050 by writing 0 to the PWR_MGMT_1 register
         std::array< std::uint8_t, 2 > buf { Regs::PWR_MGMT_1, 0x00 };
         i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+
+        static constexpr std::uint8_t DLPF_CFG { 0x04 };
+        buf[ 0 ] = Regs::CONFIG;
+        buf[ 1 ] |= DLPF_CFG;
+        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+        buf[ 1 ] = 0x00;
+
+
         buf[ 0 ] = Regs::ACCEL_CONFIG;
         i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+
         buf[ 0 ] = Regs::GYRO_CONFIG;
         i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
     }
@@ -86,21 +112,13 @@ namespace MPU6050
     }
 
     // Function to read sensor data
-    static inline void read_sensor( struct SensorData &sensor_data )
+    static inline void read_sensor( sensor_data_t &sensordata )
     {
         std::array< std::uint8_t, 14 > buf {};
         i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, &Regs::ACCEL_XOUT_H, 1, true );
         i2c_read_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
-
-        sensor_data.accel_x = *( std::bit_cast< std::int16_t * >( &buf[ 0 ] ) );
-        sensor_data.accel_y = *( std::bit_cast< std::int16_t * >( &buf[ 2 ] ) );
-        sensor_data.accel_z = *( std::bit_cast< std::int16_t * >( &buf[ 4 ] ) );
-        sensor_data.temp    = *( std::bit_cast< std::int16_t * >( &buf[ 6 ] ) );
-        sensor_data.gyro_x  = *( std::bit_cast< std::int16_t * >( &buf[ 8 ] ) );
-        sensor_data.gyro_y  = *( std::bit_cast< std::int16_t * >( &buf[ 10 ] ) );
-        sensor_data.gyro_z  = *( std::bit_cast< std::int16_t * >( &buf[ 12 ] ) );
+        std::memcpy( sensordata.data(), buf.data(), sensordata.size() * sizeof( std::int16_t ) );
     }
-
 }
 
 #endif
