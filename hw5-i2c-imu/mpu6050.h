@@ -15,20 +15,8 @@ namespace MPU6050
     // I2C address of the MPU6050
     static constexpr std::uint8_t I2C_ADDR { 0x68 };
 
-    // struct SensorData
-    // {
-    //     std::int16_t accel_x {};
-    //     std::int16_t accel_y {};
-    //     std::int16_t accel_z {};
+    using sensor_buf_t = std::array< std::uint8_t, 14 >;
 
-    //     std::int16_t temp {};
-
-    //     std::int16_t gyro_x {};
-    //     std::int16_t gyro_y {};
-    //     std::int16_t gyro_z {};
-    // };
-
-    using sensor_data_t = std::array< std::int16_t, 7 >;
     namespace SensorId
     {
         static constexpr std::size_t
@@ -79,45 +67,77 @@ namespace MPU6050
             ;
     }
 
-
-
-    // Function to initialize the MPU6050
-    static inline void init( void )
+    struct SensorData
     {
-        // Wake up the MPU6050 by writing 0 to the PWR_MGMT_1 register
-        std::array< std::uint8_t, 2 > buf { Regs::PWR_MGMT_1, 0x00 };
-        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+        std::int16_t
+            accel_x {}, accel_y {}, accel_z {},
+            temp {},
+            gyro_x {}, gyro_y {}, gyro_z {};
+    
+        SensorData( void ) = default;
 
-        static constexpr std::uint8_t DLPF_CFG { 0x04 };
-        buf[ 0 ] = Regs::CONFIG;
-        buf[ 1 ] |= DLPF_CFG;
-        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
-        buf[ 1 ] = 0x00;
+        SensorData( const sensor_buf_t & );
+    };
 
+    static inline void init( void );
+    static inline std::uint8_t read_whoami( void );
+    static inline SensorData read_sensor( void );
+}
 
-        buf[ 0 ] = Regs::ACCEL_CONFIG;
-        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+MPU6050::
+SensorData::SensorData( const sensor_buf_t &buf ) :
+    accel_x { i16_from_u8buf( &buf.data()[ 0 ] ) },
+    accel_y { i16_from_u8buf( &buf.data()[ 2 ] ) },
+    accel_z { i16_from_u8buf( &buf.data()[ 4 ] ) },
 
-        buf[ 0 ] = Regs::GYRO_CONFIG;
-        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
-    }
+    temp    { i16_from_u8buf( &buf.data()[ 6 ] ) },
 
-    static inline std::uint8_t read_whoami( void )
-    {
-        std::uint8_t whoami {};
-        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, &Regs::WHO_AM_I, 1, true );
-        i2c_read_blocking( I2C_PORT, MPU6050::I2C_ADDR, &whoami, 1, false );
-        return whoami;
-    }
+    gyro_x  { i16_from_u8buf( &buf.data()[ 8 ] ) },
+    gyro_y  { i16_from_u8buf( &buf.data()[ 10 ] ) },
+    gyro_z  { i16_from_u8buf( &buf.data()[ 12 ] ) }
+{}
 
-    // Function to read sensor data
-    static inline void read_sensor( sensor_data_t &sensordata )
-    {
-        std::array< std::uint8_t, 14 > buf {};
-        i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, &Regs::ACCEL_XOUT_H, 1, true );
-        i2c_read_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
-        std::memcpy( sensordata.data(), buf.data(), sensordata.size() * sizeof( std::int16_t ) );
-    }
+// Function to initialize the MPU6050
+static inline void
+MPU6050::init( void )
+{
+    // Wake up the MPU6050 by writing 0 to the PWR_MGMT_1 register
+    std::array< std::uint8_t, 2 > buf { Regs::PWR_MGMT_1, 0x00 };
+    i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+
+    static constexpr std::uint8_t DLPF_CFG { 0x04 };
+    buf[ 0 ] = Regs::CONFIG;
+    buf[ 1 ] |= DLPF_CFG;
+    i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+    buf[ 1 ] = 0x00;
+
+    buf[ 0 ] = Regs::ACCEL_CONFIG;
+    i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+
+    buf[ 0 ] = Regs::GYRO_CONFIG;
+    i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+}
+
+static inline std::uint8_t
+MPU6050::read_whoami( void )
+{
+    std::uint8_t whoami {};
+    read_i2c_device( MPU6050::I2C_ADDR, &Regs::WHO_AM_I, &whoami, 1 );
+    return whoami;
+}
+
+// Function to read sensor data
+static inline MPU6050::SensorData
+MPU6050::read_sensor( void )
+{
+    sensor_buf_t sensorbuf {};
+    read_i2c_device(
+        MPU6050::I2C_ADDR,
+        &Regs::ACCEL_XOUT_H,
+        sensorbuf.data(),
+        sensorbuf.size() / sizeof( std::uint8_t )
+    );
+    return SensorData { sensorbuf };
 }
 
 #endif

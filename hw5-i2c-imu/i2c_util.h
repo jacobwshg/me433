@@ -14,13 +14,20 @@ static constexpr std::uint8_t
     I2C_SCL_PIN { 21 }
     ;
 
+static inline std::int16_t
+i16_from_u8buf( const std::uint8_t *buf )
+{
+    return ( static_cast< std::int16_t >( buf[ 0 ] ) << 8 )
+        | ( static_cast< std::int16_t >( buf[ 1 ] ) ); 
+}
+
 static inline void
 read_i2c_device( 
-    const std::uint8_t dev_addr, const std::uint8_t reg_addr,
+    const std::uint8_t dev_addr, const std::uint8_t *reg_addr,
     std::uint8_t *buf, const std::size_t len
 )
 {
-    i2c_write_blocking( I2C_PORT, dev_addr, &reg_addr, 1, true );
+    i2c_write_blocking( I2C_PORT, dev_addr, reg_addr, 1, true );
     i2c_read_blocking( I2C_PORT, dev_addr, buf, len, false );
 }
 
