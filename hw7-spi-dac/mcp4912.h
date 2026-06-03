@@ -9,11 +9,10 @@
 namespace MCP4912
 {
     static constexpr std::size_t DWIDTH { 10 };
-    static constexpr std::uint16_t DATA_MSK { ( 0b1 << DWIDTH ) - 1 };
-
-    static constexpr std::size_t DMAX { 1 << DWIDTH };
+    static constexpr std::uint16_t DMAX { ( 1 << DWIDTH ) - 1 };
     static constexpr float DMAX_F { static_cast<float>( DMAX ) };
     static constexpr float INV_DMAX_F { 1.0F / DMAX_F };
+    static constexpr std::uint16_t DATA_MSK { DMAX };
     
     static constexpr std::size_t CMD_WIDTH { 4 };
 
@@ -44,7 +43,15 @@ namespace MCP4912
 
     static inline void write( const Channel, const std::uint16_t );
 
+    //
+    // make a 16-bit Vout value from a raw scale between 0 and 1
+    //
+    static inline std::uint16_t Vout_from_scale( const float );
+    //
+    // make a 16-bit Vout value from a raw value between 0 and 3.3V
+    //
     static inline std::uint16_t Vout_from_f( const float );
+
 }
 
 static inline std::uint16_t
@@ -68,13 +75,19 @@ MCP4912::write(  const Channel chan, const std::uint16_t data )
 }
 
 static inline std::uint16_t
+MCP4912::Vout_from_scale( const float raw_scale_f )
+{
+    const float scale_f { std::clamp( raw_scale_f, 0.0F, 1.0F ) };
+    const std::uint16_t Vout { static_cast< std::uint16_t >( scale_f * DMAX_F ) };
+    return Vout;
+}
+
+static inline std::uint16_t
 MCP4912::Vout_from_f( const float raw_Vout_f )
 {
     const float Vout_f { std::clamp( raw_Vout_f, 0.0F, VREF_F ) };
-    const std::uint16_t Vout
-    {
-        static_cast< std::uint16_t >( Vout_f * INV_VREF_F * DMAX_F )
-    };
+    const float scale_f { Vout_f * INV_VREF_F };
+    const std::uint16_t Vout { Vout_from_scale( scale_f ) };
     return Vout;
 }
 
