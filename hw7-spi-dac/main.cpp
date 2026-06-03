@@ -1,7 +1,11 @@
 
-#include <stdio.h>
+#include "spi_util.h"
+#include "mcp4912.h"
+
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
+
+#include <cstdio>
 
 // SPI Defines
 // We are going to use SPI 0, and allocate it to the following GPIO pins
@@ -31,7 +35,7 @@ main()
 
     while ( true )
     {
-        printf( "Hello, world!\n" );
+        std::printf( "Hello, world!\n" );
         sleep_ms( 1000 );
     }
 }
