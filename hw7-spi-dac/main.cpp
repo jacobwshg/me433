@@ -57,9 +57,10 @@ init_Vout_cache( void )
     for ( std::uint16_t &Vout : ( ::SIN_PERIOD_VOUT_CACHE ) )
     {
         rad += ::SIN_SAMPLE_DRAD;
+        float sin_val { std::sin( rad ) };
         // map from [ -1, 1 ] to [ 0, 1 ]
-        const float val = 0.5F + ( 0.5F * std::sinf( rad ) ); 
-        Vout = MCP4912::Vout_from_scale( val );
+        sin_val = 0.5F + ( 0.5F * sin_val ); 
+        Vout = MCP4912::Vout_from_scale( sin_val );
     }
 
     float y { 0.0F };
