@@ -35,12 +35,8 @@ int main()
     SSD1306::draw_crosshair();
     SSD1306::update();
 
-    sleep_ms( 1000 );
-
     MPU6050::init();
     const std::uint8_t whoami { MPU6050::read_whoami() };
-
-    //blink_on = !blink_on; gpio_put( BLINK_PIN, blink_on );
 
     MPU6050::sensor_data_t sensordata {};
 
@@ -57,6 +53,14 @@ int main()
 
         MPU6050::read_sensor( sensordata );
 
+        //MPU6050::read_sensor( sensordata );
+        std::array< std::uint8_t, 2 > a0_buf {}, a1_buf {};
+        std::int16_t accel_0 {}, accel_1 {};
+        read_i2c_device( MPU6050::I2C_ADDR, MPU6050::Regs::ACCEL_XOUT_H, a0_buf.data(), 2 );
+        read_i2c_device( MPU6050::I2C_ADDR, MPU6050::Regs::ACCEL_ZOUT_H, a1_buf.data(), 2 );
+        std::memcpy( &accel_0, a0_buf.data(), 2 );
+        std::memcpy( &accel_1, a1_buf.data(), 2 );
+
         snprintf( msgbuf.data(), msgbuf.size(), "whoami:" );
         SSD1306::draw_msg( msgbuf.data(), 0, 0 );
         msgbuf.fill( 0x0 );
@@ -64,6 +68,9 @@ int main()
         SSD1306::draw_msg( msgbuf.data(), 0, 8 );
         msgbuf.fill( 0x0 );
 
+        //
+        // display temperature
+        //
         snprintf( msgbuf.data(), msgbuf.size(), "temp:" );
         SSD1306::draw_msg( msgbuf.data(), 0, 16 );
         msgbuf.fill( 0x0 );
@@ -73,23 +80,15 @@ int main()
         SSD1306::draw_msg( msgbuf.data(), 0, 24 );
         msgbuf.fill( 0x0 );
 
-        // snprintf( msgbuf.data(), msgbuf.size(), "accel_x: %d", sensordata.accel_x );
-        // SSD1306::draw_msg( msgbuf.data(), 0, 8 );
-        // msgbuf.fill( 0x0 );
-        // snprintf( msgbuf.data(), msgbuf.size(), "accel_y: %d", sensordata.accel_y );
-        // SSD1306::draw_msg( msgbuf.data(), 0, 16 );
-        // msgbuf.fill( 0x0 );
-        // snprintf( msgbuf.data(), msgbuf.size(), "accel_z: %d", sensordata.accel_z );
-        // SSD1306::draw_msg( msgbuf.data(), 0, 24 );
-        // msgbuf.fill( 0x0 );
+
 
         static constexpr px_pos_t MAX_OFS { static_cast< px_pos_t >( std::min( SSD1306::WIDTH/2, SSD1306::HEIGHT/2 ) ) };
         static constexpr px_pos_t I16_MAX { std::numeric_limits< px_pos_t >::max() };
         static constexpr float F_I16_MAX { static_cast< float >( I16_MAX ) };
         static constexpr float SCALE { static_cast< float >( MAX_OFS ) / F_I16_MAX };
 
-        const px_pos_t x_ofs { static_cast< px_pos_t >( sensordata[ MPU6050::SensorId::ACCEL_X ] * SCALE ) };
-        const px_pos_t y_ofs { static_cast< px_pos_t >( sensordata[ MPU6050::SensorId::ACCEL_Y ] * SCALE ) };
+        const px_pos_t x_ofs { static_cast< px_pos_t >( accel_0 * SCALE ) };
+        const px_pos_t y_ofs { static_cast< px_pos_t >( accel_1 * SCALE ) };
 
         const px_pos_t
             x { SSD1306::XC + x_ofs },

@@ -4,7 +4,6 @@
 
 #include "i2c_util.h"
 #include "hardware/i2c.h"
-#include "hardware/i2c.h"
 #include <cstdint>
 #include <array>
 #include <bit>
