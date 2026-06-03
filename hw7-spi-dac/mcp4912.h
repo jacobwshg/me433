@@ -5,6 +5,8 @@
 #include "spi_util.h"
 #include <cstddef>
 #include <algorithm>
+#include <cstring>
+#include <array>
 
 namespace MCP4912
 {
@@ -67,8 +69,13 @@ MCP4912::write(  const Channel chan, const std::uint16_t data )
         make_command( chan )
         | ( ( data & DATA_MSK ) << DATA_OFS )
     };
+    
+    static std::array< std::uint8_t, 2 > buf {};
+    buf[ 0 ] = static_cast<std::uint8_t>( pkt >> 8 );
+    buf[ 1 ] = static_cast<std::uint8_t>( pkt & 0xffU );
+
     SPIUtil::cs_select();
-    spi_write16_blocking( SPI_PORT, &pkt, 1 );
+    spi_write_blocking( SPI_PORT, buf.data(), buf.size() );
     SPIUtil::cs_deselect();
 }
 

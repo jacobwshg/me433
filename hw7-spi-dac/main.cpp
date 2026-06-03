@@ -83,6 +83,8 @@ main()
 
     init_Vout_cache();
 
+    //spi_set_format( SPI_PORT, 16, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST );
+
     // SPI initialisation. This example will use SPI at 1MHz.
     spi_init( SPI_PORT, ::BAUD_HZ );
     gpio_set_function( Pins::SPI_MISO, GPIO_FUNC_SPI );
@@ -97,12 +99,17 @@ main()
 
     std::size_t i_sin { 0 }, i_tri { 0 };
 
+    // MCP4912::write( MCP4912::Channel::A, MCP4912::Vout_from_f( 0.0F ) );
+    // MCP4912::write( MCP4912::Channel::B, MCP4912::Vout_from_f( 1.0F ) );
+
     while ( true )
     {
         const absolute_time_t now { get_absolute_time() };
 
         MCP4912::write( MCP4912::Channel::A, ::SIN_PERIOD_VOUT_CACHE[ i_sin ] );
         MCP4912::write( MCP4912::Channel::B, ::TRI_PERIOD_VOUT_CACHE[ i_tri ] );
+        // MCP4912::write( MCP4912::Channel::A, static_cast<std::uint16_t>( 0U ) ); // test
+        // MCP4912::write( MCP4912::Channel::B, MCP4912::DMAX ); // test
         if ( ++i_sin == SIN_SAMPLES_PER_PERIOD ) { i_sin = 0; }
         if ( ++i_tri == TRI_SAMPLES_PER_PERIOD ) { i_tri = 0; }
         sleep_until( now + ::SLEEP_UNTIL_DT );
