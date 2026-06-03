@@ -17,8 +17,9 @@ static constexpr std::uint8_t
 static inline std::int16_t
 i16_from_u8buf( const std::uint8_t *buf )
 {
-    return ( static_cast< std::int16_t >( buf[ 0 ] ) << 8 )
-        | ( static_cast< std::int16_t >( buf[ 1 ] ) ); 
+    static constexpr std::size_t HI { 0 }, LO { 1 };
+    return ( static_cast< std::int16_t >( buf[ HI ] ) << 8 )
+        | ( static_cast< std::int16_t >( buf[ LO ] ) ); 
 }
 
 static inline void
@@ -33,11 +34,11 @@ read_i2c_device(
 
 static inline void
 write_i2c_device(
-    const std::uint8_t dev_addr, const std::uint8_t reg_addr,
+    const std::uint8_t dev_addr, const std::uint8_t *reg_addr,
     const std::uint8_t *buf, const std::size_t len
 )
 {
-    i2c_write_blocking( I2C_PORT, dev_addr, &reg_addr, 1, true );
+    i2c_write_blocking( I2C_PORT, dev_addr, reg_addr, 1, true );
     i2c_write_blocking( I2C_PORT, dev_addr, buf, len, false );
 }
 

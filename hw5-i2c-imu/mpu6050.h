@@ -102,20 +102,21 @@ static inline void
 MPU6050::init( void )
 {
     // Wake up the MPU6050 by writing 0 to the PWR_MGMT_1 register
-    std::array< std::uint8_t, 2 > buf { Regs::PWR_MGMT_1, 0x00 };
-    i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+    std::uint8_t val { 0x00 };
 
-    static constexpr std::uint8_t DLPF_CFG { 0x04 };
-    buf[ 0 ] = Regs::CONFIG;
-    buf[ 1 ] |= DLPF_CFG;
-    i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
-    buf[ 1 ] = 0x00;
+    write_i2c_device( MPU6050::I2C_ADDR, &Regs::PWR_MGMT_1, &val, 1 );
 
-    buf[ 0 ] = Regs::ACCEL_CONFIG;
-    i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+    static constexpr std::uint8_t DLPF_CFG { 0x4 }; // 20Hz bandwidth
+    val = DLPF_CFG;
+    write_i2c_device( MPU6050::I2C_ADDR, &Regs::CONFIG, &val, 1 );
 
-    buf[ 0 ] = Regs::GYRO_CONFIG;
-    i2c_write_blocking( I2C_PORT, MPU6050::I2C_ADDR, buf.data(), buf.size(), false );
+    static constexpr std::uint8_t AFS_SEL { 0x0 }; // +-2g
+    val = AFS_SEL << 3;
+    write_i2c_device( MPU6050::I2C_ADDR, &Regs::ACCEL_CONFIG, &val, 1 );
+
+    static constexpr std::uint8_t GYRO_FS_SEL { 0x3 }; // +-2000deg/s
+    val = GYRO_FS_SEL << 3;
+    write_i2c_device( MPU6050::I2C_ADDR, &Regs::GYRO_CONFIG, &val, 1 );
 }
 
 static inline std::uint8_t

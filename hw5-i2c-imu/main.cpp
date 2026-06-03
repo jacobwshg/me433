@@ -38,8 +38,7 @@ int main()
     MPU6050::init();
     const std::uint8_t whoami { MPU6050::read_whoami() };
 
-
-    std::array< char, 64 > msgbuf {};
+    static std::array< char, 64 > msgbuf {};
 
     while ( true )
     {
@@ -62,10 +61,13 @@ int main()
         // std::memcpy( &accel_0, a0_buf.data(), 2 );
         // std::memcpy( &accel_1, a1_buf.data(), 2 );
 
+        //
         // print WHO_AM_I
+        //
         snprintf( msgbuf.data(), msgbuf.size(), "whoami:" );
         SSD1306::draw_msg( msgbuf.data(), 0, 0 );
         msgbuf.fill( 0x0 );
+
         snprintf( msgbuf.data(), msgbuf.size(), "0x%02x", whoami );
         SSD1306::draw_msg( msgbuf.data(), 0, 8 );
         msgbuf.fill( 0x0 );
@@ -76,13 +78,16 @@ int main()
         snprintf( msgbuf.data(), msgbuf.size(), "temp:" );
         SSD1306::draw_msg( msgbuf.data(), 0, 16 );
         msgbuf.fill( 0x0 );
+
         const std::int16_t temp_raw { sensordata.temp };
         const float temp { static_cast< float >( temp_raw ) / 340.0F + 36.53F };
         snprintf( msgbuf.data(), msgbuf.size(), "%05.2f C", temp );
         SSD1306::draw_msg( msgbuf.data(), 0, 24 );
         msgbuf.fill( 0x0 );
 
-
+        //
+        // draw acceleration vector
+        //
         static constexpr px_pos_t MAX_OFS { static_cast< px_pos_t >( std::min( SSD1306::WIDTH/2, SSD1306::HEIGHT/2 ) ) };
         static constexpr px_pos_t I16_MAX { std::numeric_limits< px_pos_t >::max() };
         static constexpr float F_I16_MAX { static_cast< float >( I16_MAX ) };
