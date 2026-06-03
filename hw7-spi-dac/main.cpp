@@ -56,7 +56,7 @@ init_Vout_cache( void )
     float rad { 0.0F };
     for ( std::uint16_t &Vout : ( ::SIN_PERIOD_VOUT_CACHE ) )
     {
-        rad += SIN_SAMPLE_DRAD;
+        rad += ::SIN_SAMPLE_DRAD;
         // map from [ -1, 1 ] to [ 0, 1 ]
         const float val = 0.5F + ( 0.5F * std::sinf( rad ) ); 
         Vout = MCP4912::Vout_from_scale( val );
@@ -68,9 +68,9 @@ init_Vout_cache( void )
     {
         if ( idx < TRI_SAMPLES_PER_PERIOD / 2 )
         {
-            y += TRI_SAMPLE_DY_ABS;
+            y += ::TRI_SAMPLE_DY_ABS;
         }
-        else { y -= TRI_SAMPLE_DY_ABS; }
+        else { y -= ::TRI_SAMPLE_DY_ABS; }
         Vout = MCP4912::Vout_from_scale( y );
         ++idx;
     }
@@ -99,7 +99,7 @@ main()
 
     while ( true )
     {
-        absolute_time_t now { get_absolute_time() };
+        const absolute_time_t now { get_absolute_time() };
 
         MCP4912::write( MCP4912::Channel::A, ::SIN_PERIOD_VOUT_CACHE[ i_sin ] );
         MCP4912::write( MCP4912::Channel::B, ::TRI_PERIOD_VOUT_CACHE[ i_tri ] );

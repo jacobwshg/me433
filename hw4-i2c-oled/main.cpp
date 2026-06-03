@@ -17,8 +17,8 @@
 namespace Pins
 {
     static constexpr uint
-        I2C_SDA_PIN { 4 },
-        I2C_SCL_PIN { 5 },
+        I2C_SDA_PIN { 20 },
+        I2C_SCL_PIN { 21 },
         BLINK_PIN   { 0 },
         ADC_PIN     { 26 },
         ADC_IN_PIN  { 0 }

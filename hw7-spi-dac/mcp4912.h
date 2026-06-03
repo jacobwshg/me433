@@ -10,31 +10,29 @@ namespace MCP4912
 {
     static constexpr std::size_t DWIDTH { 10 };
     static constexpr std::uint16_t DMAX { ( 1 << DWIDTH ) - 1 };
-    static constexpr float DMAX_F { static_cast<float>( DMAX ) };
+    static constexpr float DMAX_F { static_cast< float >( DMAX ) };
     static constexpr float INV_DMAX_F { 1.0F / DMAX_F };
     static constexpr std::uint16_t DATA_MSK { DMAX };
-    
-    static constexpr std::size_t CMD_WIDTH { 4 };
 
     enum class Channel: std::uint16_t { A = 0, B = 1 };
 
     static constexpr std::size_t
         CHAN_OFS  { 15 },
         BUF_OFS   { 14 },
-        NGA_OFS   { 13 },
-        NSHDN_OFS { 12 },
+        GAn_OFS   { 13 },
+        SHDNn_OFS { 12 },
         DATA_OFS  { 12 - DWIDTH }
         ;
     static constexpr std::uint16_t
         // wire to high - input buffered
         BUF   { 0b1 }, 
          // wire to high - gain = 1x
-        NGA   { 0b1 },
+        GAn   { 0b1 },
         // wire to high - output enabled 
-        NSHDN { 0b1 }  
+        SHDNn { 0b1 }  
         ;
 
-    static constexpr float GAIN_F { NGA ? 1.0F : 2.0F };
+    static constexpr float GAIN_F { GAn ? 1.0F : 2.0F };
 
     static constexpr float VREF_F { 3.3F };
     static constexpr float INV_VREF_F { 1.0F / VREF_F };
@@ -57,7 +55,7 @@ namespace MCP4912
 static inline std::uint16_t
 MCP4912::make_command( const Channel chan )
 {
-    return ( ( BUF<<BUF_OFS ) | ( NGA<<NGA_OFS ) | ( NSHDN<<NSHDN_OFS ) )
+    return ( ( BUF<<BUF_OFS ) | ( GAn<<GAn_OFS ) | ( SHDNn<<SHDNn_OFS ) )
         | ( static_cast< std::uint16_t >( chan ) << CHAN_OFS );
 }
 
