@@ -43,8 +43,8 @@ int main()
     while ( true )
     {
         msgbuf.fill( 0x0 );
-        // gpio_put( BLINK_PIN, blink_on );
-        // blink_on = !blink_on;
+        gpio_put( BLINK_PIN, blink_on );
+        blink_on = !blink_on;
         // sleep_ms( 500 );
         SSD1306::clear();
         SSD1306::draw_crosshair();
@@ -54,8 +54,8 @@ int main()
         //std::array< std::uint8_t, 2 > a0_buf {}, a1_buf {};
 
         std::int16_t
-            accel_0 { sensordata.accel_x },
-            accel_1 { sensordata.accel_z };
+            accel_0 { -2 * sensordata.accel_x },
+            accel_1 { 2 * sensordata.accel_y };
         // read_i2c_device( MPU6050::I2C_ADDR, &MPU6050::Regs::ACCEL_XOUT_H, a0_buf.data(), 2 );
         // read_i2c_device( MPU6050::I2C_ADDR, &MPU6050::Regs::ACCEL_ZOUT_H, a1_buf.data(), 2 );
         // std::memcpy( &accel_0, a0_buf.data(), 2 );
@@ -103,9 +103,9 @@ int main()
         SSD1306::draw_segment( SSD1306::XC, SSD1306::YC, x, y );
         SSD1306::update();
 
-        //gpio_put( BLINK_PIN, blink_on );
-        //blink_on = !blink_on;
-        sleep_ms( 100 );
+        gpio_put( BLINK_PIN, blink_on );
+        blink_on = !blink_on;
+        //sleep_ms( 100 );
 
     }
 }
