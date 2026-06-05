@@ -86,15 +86,15 @@ namespace MPU6050
 
 MPU6050::
 SensorData::SensorData( const sensor_buf_t &buf ) :
-    accel_x { i16_from_u8buf( &buf.data()[ 0 ] ) },
-    accel_y { i16_from_u8buf( &buf.data()[ 2 ] ) },
-    accel_z { i16_from_u8buf( &buf.data()[ 4 ] ) },
+    accel_x { I2CUtil::i16_from_u8buf( &buf.data()[ 0 ] ) },
+    accel_y { I2CUtil::i16_from_u8buf( &buf.data()[ 2 ] ) },
+    accel_z { I2CUtil::i16_from_u8buf( &buf.data()[ 4 ] ) },
 
-    temp    { i16_from_u8buf( &buf.data()[ 6 ] ) },
+    temp    { I2CUtil::i16_from_u8buf( &buf.data()[ 6 ] ) },
 
-    gyro_x  { i16_from_u8buf( &buf.data()[ 8 ] ) },
-    gyro_y  { i16_from_u8buf( &buf.data()[ 10 ] ) },
-    gyro_z  { i16_from_u8buf( &buf.data()[ 12 ] ) }
+    gyro_x  { I2CUtil::i16_from_u8buf( &buf.data()[ 8 ] ) },
+    gyro_y  { I2CUtil::i16_from_u8buf( &buf.data()[ 10 ] ) },
+    gyro_z  { I2CUtil::i16_from_u8buf( &buf.data()[ 12 ] ) }
 {}
 
 // Function to initialize the MPU6050
@@ -104,26 +104,26 @@ MPU6050::init( void )
     // Wake up the MPU6050 by writing 0 to the PWR_MGMT_1 register
     std::uint8_t val { 0x00 };
 
-    write_i2c_device( MPU6050::I2C_ADDR, &Regs::PWR_MGMT_1, &val, 1 );
+    I2CUtil::write_i2c_device( MPU6050::I2C_ADDR, &Regs::PWR_MGMT_1, &val, 1 );
 
     static constexpr std::uint8_t DLPF_CFG { 0x4 }; // 20Hz bandwidth
     val = DLPF_CFG;
-    write_i2c_device( MPU6050::I2C_ADDR, &Regs::CONFIG, &val, 1 );
+    I2CUtil::write_i2c_device( MPU6050::I2C_ADDR, &Regs::CONFIG, &val, 1 );
 
     static constexpr std::uint8_t AFS_SEL { 0x0 }; // +-2g
     val = AFS_SEL << 3;
-    write_i2c_device( MPU6050::I2C_ADDR, &Regs::ACCEL_CONFIG, &val, 1 );
+    I2CUtil::write_i2c_device( MPU6050::I2C_ADDR, &Regs::ACCEL_CONFIG, &val, 1 );
 
     static constexpr std::uint8_t GYRO_FS_SEL { 0x3 }; // +-2000deg/s
     val = GYRO_FS_SEL << 3;
-    write_i2c_device( MPU6050::I2C_ADDR, &Regs::GYRO_CONFIG, &val, 1 );
+    I2CUtil::write_i2c_device( MPU6050::I2C_ADDR, &Regs::GYRO_CONFIG, &val, 1 );
 }
 
 static inline std::uint8_t
 MPU6050::read_whoami( void )
 {
     std::uint8_t whoami {};
-    read_i2c_device( MPU6050::I2C_ADDR, &Regs::WHO_AM_I, &whoami, 1 );
+    I2CUtil::read_i2c_device( MPU6050::I2C_ADDR, &Regs::WHO_AM_I, &whoami, 1 );
     return whoami;
 }
 
@@ -132,7 +132,7 @@ static inline MPU6050::SensorData
 MPU6050::read_sensor( void )
 {
     sensor_buf_t sensorbuf {};
-    read_i2c_device(
+    I2CUtil::read_i2c_device(
         MPU6050::I2C_ADDR,
         &Regs::ACCEL_XOUT_H,
         sensorbuf.data(),

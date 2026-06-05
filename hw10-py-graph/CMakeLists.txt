@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Initialise pico_sdk from installed location
@@ -45,8 +45,10 @@ pico_enable_stdio_uart(hw10-py-graph 0)
 pico_enable_stdio_usb(hw10-py-graph 0)
 
 # Add the standard library to the build
-target_link_libraries(hw10-py-graph
-        pico_stdlib)
+target_link_libraries(
+    hw10-py-graph
+        pico_stdlib
+)
 
 # Add the standard include files to the build
 target_include_directories(hw10-py-graph PRIVATE
@@ -54,10 +56,11 @@ target_include_directories(hw10-py-graph PRIVATE
 )
 
 # Add any user requested libraries
-target_link_libraries(hw10-py-graph 
+target_link_libraries(
+    hw10-py-graph 
         hardware_i2c
         
-        )
+)
 
 pico_add_extra_outputs(hw10-py-graph)
 
