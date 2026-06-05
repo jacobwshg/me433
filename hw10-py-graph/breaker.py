@@ -1,5 +1,6 @@
 
 import pgzrun
+import pygame
 import serial
 from pygame import Rect
 
@@ -58,7 +59,7 @@ for row in range(rows):
 def update():
     global ball_vel, use_serial
     
-    # 1. Fetch Input (Serial or Keyboard)
+    # 1. Fetch Input (Serial or mouse)
     if use_serial and ser.in_waiting > 0:
         try:
             # Read line, decode, and strip whitespace
@@ -72,11 +73,9 @@ def update():
             # Ignore garbled serial data
             pass
     else:
-        # Keyboard fallback
-        if keyboard.left:
-            paddle.x -= 7
-        if keyboard.right:
-            paddle.x += 7
+        # Fallback to mouse control if serial is not available
+        mouse_x = pygame.mouse.get_pos()[0]
+        paddle.centerx = mouse_x
 
     # Keep paddle within screen bounds
     if paddle.left < 0: paddle.left = 0
