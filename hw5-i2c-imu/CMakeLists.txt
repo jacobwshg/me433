@@ -45,7 +45,7 @@ pico_set_program_version( hw5-i2c-imu "0.1" )
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart( hw5-i2c-imu 0 )
-pico_enable_stdio_usb( hw5-i2c-imu 0 )
+pico_enable_stdio_usb( hw5-i2c-imu 1 )
 
 # Add the standard library to the build
 target_link_libraries(

@@ -10,8 +10,8 @@
 
 static constexpr i2c_inst_t *I2C_PORT { i2c0 };
 static constexpr std::uint8_t
-    I2C_SDA_PIN { 20 },
-    I2C_SCL_PIN { 21 }
+    I2C_SDA_PIN { 4 },
+    I2C_SCL_PIN { 5 }
     ;
 
 static inline std::int16_t

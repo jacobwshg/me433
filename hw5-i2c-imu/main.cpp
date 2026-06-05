@@ -51,15 +51,22 @@ int main()
 
         MPU6050::SensorData sensordata { MPU6050::read_sensor() };
 
-        //std::array< std::uint8_t, 2 > a0_buf {}, a1_buf {};
+                
+        const std::int16_t
+            temp { sensordata.temp },
+            accel_x { sensordata.accel_x },
+            accel_y { sensordata.accel_y },
+            accel_z { sensordata.accel_z },
+            gyro_x { sensordata.gyro_x },
+            gyro_y { sensordata.gyro_y },
+            gyro_z { sensordata.gyro_z }
+            ;
+        //std::printf( "temp: %6d  accel: %6d %6d %6d  gyro: %6d %6d %6d\n", temp, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z );
+        std::printf( "%6d\n", accel_x );
 
         std::int16_t
-            accel_0 { -2 * sensordata.accel_x },
-            accel_1 { 2 * sensordata.accel_y };
-        // read_i2c_device( MPU6050::I2C_ADDR, &MPU6050::Regs::ACCEL_XOUT_H, a0_buf.data(), 2 );
-        // read_i2c_device( MPU6050::I2C_ADDR, &MPU6050::Regs::ACCEL_ZOUT_H, a1_buf.data(), 2 );
-        // std::memcpy( &accel_0, a0_buf.data(), 2 );
-        // std::memcpy( &accel_1, a1_buf.data(), 2 );
+            accel_0 { -2 * accel_x },
+            accel_1 { 2 * accel_y };
 
         //
         // print WHO_AM_I
@@ -79,11 +86,11 @@ int main()
         SSD1306::draw_msg( msgbuf.data(), 0, 16 );
         msgbuf.fill( 0x0 );
 
-        const std::int16_t temp_raw { sensordata.temp };
-        const float temp { static_cast< float >( temp_raw ) / 340.0F + 36.53F };
-        snprintf( msgbuf.data(), msgbuf.size(), "%05.2f C", temp );
+        const float temp_f { static_cast< float >( temp ) / 340.0F + 36.53F };
+        snprintf( msgbuf.data(), msgbuf.size(), "%05.2f C", temp_f );
         SSD1306::draw_msg( msgbuf.data(), 0, 24 );
         msgbuf.fill( 0x0 );
+
 
         //
         // draw acceleration vector
@@ -105,7 +112,7 @@ int main()
 
         gpio_put( BLINK_PIN, blink_on );
         blink_on = !blink_on;
-        //sleep_ms( 100 );
+        sleep_ms( 10 );
 
     }
 }

@@ -15,9 +15,19 @@ int main()
     stdio_init_all();
 
     I2CUtil::init();
+    MPU6050::init();
 
-    while (true) {
-        printf("Hello, world!\n");
-        sleep_ms(1000);
+    while ( true )
+    {
+        MPU6050::SensorData data { MPU6050::read_sensor() };
+
+        const std::int16_t
+            gyro_x { data.gyro_x },
+            gyro_y { data.gyro_y },
+            gyro_z { data.gyro_z };
+
+        std::printf( "Gyro (x, y, z): %d, %d, %d\n", gyro_x, gyro_y, gyro_z );
+
+        sleep_ms( 100 );
     }
 }
