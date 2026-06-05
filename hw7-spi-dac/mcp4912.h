@@ -64,18 +64,25 @@ MCP4912::make_command( const Channel chan )
 static inline void
 MCP4912::write(  const Channel chan, const std::uint16_t data )
 {
-    const std::uint16_t pkt
+    std::uint16_t pkt
     {
         make_command( chan )
         | ( ( data & DATA_MSK ) << DATA_OFS )
     };
     
-    static std::array< std::uint8_t, 2 > buf {};
-    buf[ 0 ] = static_cast<std::uint8_t>( pkt >> 8 );
-    buf[ 1 ] = static_cast<std::uint8_t>( pkt & 0xffU );
+    // static std::array< std::uint8_t, 2 > buf {};
+    // buf[ 0 ] = static_cast<std::uint8_t>( pkt >> 8 );
+    // buf[ 1 ] = static_cast<std::uint8_t>( pkt & 0xffU );
 
+    // SPIUtil::cs_select();
+    // spi_write16_blocking( SPI_PORT, buf.data(), 1 );
+    // SPIUtil::cs_deselect();
+
+    //pkt = __builtin_bswap16( pkt );
     SPIUtil::cs_select();
-    spi_write_blocking( SPI_PORT, buf.data(), buf.size() );
+    sleep_us( 1 );
+    spi_write16_blocking( SPI_PORT, &pkt, 1 );
+    sleep_us( 1 );
     SPIUtil::cs_deselect();
 }
 
