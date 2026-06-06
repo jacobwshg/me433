@@ -5,8 +5,8 @@ import serial
 from pygame import Rect
 
 # --- Configuration ---
-WIDTH = 710
-HEIGHT = 710
+WIDTH = 720
+HEIGHT = 720
 
 # --- Serial Port Setup ---
 # Update 'COM3' (Windows) or '/dev/ttyUSB0' (Mac/Linux) to match your device.
@@ -70,14 +70,22 @@ def update():
         return int( alpha * nxt + ( 1 - alpha ) * cur )
 
     # 1. Fetch Input (Serial or mouse)
+    bufcnt = 0    
+    try:
+        if use_serial:
+            bufcnt = ser.in_waiting
+    except:
+        print( "Serial disconnected" )
+        use_serial = False
+
     if use_serial:
         # Check if a new reading is available
-        if ser.in_waiting > 0:
+        if bufcnt > 0:
             try:
                 line = ser.readline().decode('utf-8').strip()
                 if line:
                     pot_val = int(line)
-                    paddle_next = int(   ( -pot_val ) / 16384 * WIDTH )
+                    paddle_next = int( WIDTH / 2 +  ( -pot_val ) / 16384 * WIDTH )
                     print( paddle_next )
                     paddle.centerx = normalize_paddle(paddle_next, paddle.centerx)
             except ValueError:
