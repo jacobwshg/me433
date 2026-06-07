@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import filter
+from fir_coefs import FIR_DES, FIR_COEFS
 
 # plot amplitudes in time domain
 def plot_td( ts, ds, xlabel="time", ylabel="ampl", title="" ):
@@ -65,7 +66,7 @@ def run_maf(
 
 	maf_fft_out = np.fft.fft( maf_out ) / cnt
 	freqs = np.arange( cnt ) / tmax
-	maf_fft_out = fft_out[ range( cnt // 2 ) ]
+	maf_fft_out = maf_fft_out[ range( cnt // 2 ) ]
 	freqs = freqs[ range( cnt // 2 ) ]
 
 	#plot_td( ts, maf_out )
@@ -78,7 +79,7 @@ def run_maf(
 
 
 def run_iir(
-	cnt, data, ts, A=0.999,
+	cnt, data, ts, fft_out, A=0.999,
 	figname="iir.png", title=""
 ):
 	iir = filter.IIR( A=A )
@@ -101,7 +102,7 @@ def run_iir(
 
 
 def run_fir(
-	cnt, data, ts, coefs,
+	cnt, data, ts, fft_out, coefs,
 	figname="fir.png", title=""
 ):
 	fir = filter.FIR( coefs=coefs )
@@ -111,15 +112,17 @@ def run_fir(
 		fir.add_sample( data[ i ] )
 		fir_out[ i ] = fir.get_avg()
 
-	fft_out = np.fft.fft( fir_out ) / cnt
+	fir_fft_out = np.fft.fft( fir_out ) / cnt
 	freqs = np.arange( cnt ) / tmax
-	fft_out = fft_out[ range( cnt // 2 ) ]
+	fir_fft_out = fir_fft_out[ range( cnt // 2 ) ]
 	freqs = freqs[ range( cnt // 2 ) ]
 
-	plot_td_fd(
-		ts, data, freqs, fft_out,
+	plot_td_fd_cmp(
+		ts, data, fir_out,
+		freqs, fft_out, fir_fft_out,
 		figname=figname, title=title
 	)
+
 
 MAF_TAPS = \
 {
@@ -137,38 +140,10 @@ IIR_A = \
 	"D": 0.95
 }
 
-# sampling rate 400Hz, cutoff 10Hz, transition BW 50Hz
-coefs_D = [
-    0.003406212229674561,
-    0.004615070664811991,
-    0.007608634521169020,
-    0.012659850008542091,
-    0.019798608584983383,
-    0.028784787004261951,
-    0.039116212018982140,
-    0.050071944217781210,
-    0.060786348627844503,
-    0.070345019112866947,
-    0.077890394025478593,
-    0.082723325067391634,
-    0.084387187832423882,
-    0.082723325067391634,
-    0.077890394025478607,
-    0.070345019112866961,
-    0.060786348627844530,
-    0.050071944217781210,
-    0.039116212018982154,
-    0.028784787004261965,
-    0.019798608584983383,
-    0.012659850008542096,
-    0.007608634521169026,
-    0.004615070664811996,
-    0.003406212229674561,
-]
 
 if __name__ == "__main__":
 
-	tag = "D"
+	tag = "A"
 	sig_name = f"sig{ tag }" 
 	filename = f"{ sig_name }.csv"
 
@@ -204,10 +179,16 @@ if __name__ == "__main__":
 	maf_figname = f"{ sig_name }_maf.png"
 	maf_title=f"{ sig_name } MAF ( tap={ maf_tap } )"
 	maf_title
-	#run_maf( cnt, data, ts, fft_out, tap=maf_tap, figname=maf_figname, title=maf_title )
+	run_maf( cnt, data, ts, fft_out, tap=maf_tap, figname=maf_figname, title=maf_title )
 
 	iir_A = IIR_A[ tag ]
 	iir_figname = f"{ sig_name }_iir.png"
 	iir_title=f"{ sig_name } IIR ( A={ iir_A } )"
-	run_iir( cnt, data, ts, A=iir_A, figname=iir_figname, title=iir_title )
+	run_iir( cnt, data, ts, fft_out, A=iir_A, figname=iir_figname, title=iir_title )
+
+	fir_coefs = FIR_COEFS[ tag ]
+	fir_figname = f"{ sig_name }_fir.png"
+	fir_des = FIR_DES[ tag ]
+	fir_title=f"{ sig_name } FIR ( { fir_des } )"
+	run_fir( cnt, data, ts, fft_out, coefs=fir_coefs, figname=fir_figname, title=fir_title )
 
