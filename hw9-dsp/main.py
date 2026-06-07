@@ -20,7 +20,7 @@ def plot_fd( ts, ds, xlabel="freq", ylabel="ampl", title="" ):
 	plt.show()
 
 # plot amplitudes in both domains 
-def plot_td_fd( ts, ds_td, freqs, ds_fd ):
+def plot_td_fd( ts, ds_td, freqs, ds_fd, savname="", title="" ):
 	fig, ( ax1, ax2 ) = plt.subplots( 2, 1 )
 	ax1.plot( ts, ds_td, "b" )
 	ax1.set_xlabel( "time" )
@@ -28,9 +28,30 @@ def plot_td_fd( ts, ds_td, freqs, ds_fd ):
 	ax2.loglog( freqs, abs( ds_fd ), "b" )
 	ax2.set_xlabel( "freq" )
 	ax2.set_ylabel( "|ampl|" )
+	plt.suptitle( title )
+	plt.savefig( savname )
 	plt.show()
 
-def run_maf( cnt, data, ts, tap=32 ):
+# plot both raw and filtered amplitudes in both domains 
+def plot_td_fd_cmp(
+	ts, raw_td, filtered_td,
+	freqs, raw_fd, filtered_fd,
+	title=""
+):
+	fig, ( ax1, ax2 ) = plt.subplots( 2, 1 )
+	ax1.plot( ts, raw_td, "black" )
+	ax1.plot( ts, filtered_td, "red" )
+	ax1.set_xlabel( "time" )
+	ax1.set_ylabel( "ampl" )
+	ax2.loglog( freqs, abs( raw_fd ), "black" )
+	ax2.loglog( freqs, abs( filtered_fd ), "red" )
+	ax2.set_xlabel( "freq" )
+	ax2.set_ylabel( "|ampl|" )
+	plt.suptitle( title )
+	plt.show()
+
+
+def run_maf( cnt, data, ts, fft_out, tap=64 ):
 	maf = filter.MAF( tap=32 )
 
 	maf_out = [ 0.0 ] * cnt
@@ -38,12 +59,18 @@ def run_maf( cnt, data, ts, tap=32 ):
 		maf.add_sample( data[ i ] )
 		maf_out[ i ] = maf.get_avg()
 
-	fft_out = np.fft.fft( maf_out ) / cnt
+	maf_fft_out = np.fft.fft( maf_out ) / cnt
 	freqs = np.arange( cnt ) / tmax
-	fft_out = fft_out[ range( cnt // 2 ) ]
+	maf_fft_out = fft_out[ range( cnt // 2 ) ]
 	freqs = freqs[ range( cnt // 2 ) ]
 
-	plot_td_fd( ts, data, freqs, fft_out )
+	#plot_td( ts, maf_out )
+
+	plot_td_fd_cmp(
+		ts, data, maf_out,
+		freqs, fft_out, maf_fft_out,
+		title=f"MAF tap={ maf.tap }"
+	)
 
 
 def run_iir( cnt, data, ts, A=0.999 ):
@@ -54,12 +81,17 @@ def run_iir( cnt, data, ts, A=0.999 ):
 		iir.add_sample( data[ i ] )
 		iir_out[ i ] = iir.get_avg()
 
-	fft_out = np.fft.fft( iir_out ) / cnt
+	iir_fft_out = np.fft.fft( iir_out ) / cnt
 	freqs = np.arange( cnt ) / tmax
-	fft_out = fft_out[ range( cnt // 2 ) ]
+	iir_fft_out = iir_fft_out[ range( cnt // 2 ) ]
 	freqs = freqs[ range( cnt // 2 ) ]
 
-	plot_td_fd( ts, data, freqs, fft_out )
+	plot_td_fd_cmp(
+		ts, data, iir_out,
+		freqs, fft_out, iir_fft_out,
+		title=f"IIR A={ iir.A }"
+	)
+
 
 def run_fir( cnt, data, ts, coefs ):
 	fir = filter.FIR( coefs=coefs )
@@ -107,12 +139,14 @@ coefs_D = [
 
 if __name__ == "__main__":
 
-	PATH = "sigA.csv"
+	tag = "D"
+	sig_name = f"sig{ tag }" 
+	filename = f"{ sig_name }.csv"
 
 	data = []
 	cnt = 0
 	tmax = 0.0
-	with open( PATH, mode="r" ) as f:
+	with open( filename, mode="r" ) as f:
 		reader = csv.reader( f )
 		for row in reader:
 			data.append( float( row[ 1 ] ) )
@@ -133,8 +167,10 @@ if __name__ == "__main__":
 
 	#plot_loglog( freqs, fft_out )
 
-	plot_td_fd( ts, data, freqs, fft_out )
+	savname = f"{ sig_name }.png"
+	title = sig_name + f" (Fs={ int( sampling_rate ) }Hz)"
+	plot_td_fd( ts, data, freqs, fft_out, savname=savname, title=title )
 
-	run_maf( cnt, data, ts, tap=32 )
+	#run_maf( cnt, data, ts, fft_out, tap=64 )
 	#run_iir( cnt, data, ts, A=0.995 )
 
