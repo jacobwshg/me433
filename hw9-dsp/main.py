@@ -143,7 +143,12 @@ IIR_A = \
 
 if __name__ == "__main__":
 
+	from sys import argv
+
 	tag = "A"
+	if len( argv ) > 1:
+		tag = argv[ 1 ]
+	
 	sig_name = f"sig{ tag }" 
 	filename = f"{ sig_name }.csv"
 
@@ -173,7 +178,7 @@ if __name__ == "__main__":
 
 	figname = f"{ sig_name }.png"
 	title = sig_name + f" (Fs={ int( sampling_rate ) }Hz)"
-	#plot_td_fd( ts, data, freqs, fft_out, figname=figname, title=title )
+	plot_td_fd( ts, data, freqs, fft_out, figname=figname, title=title )
 
 	maf_tap = MAF_TAPS[ tag ]
 	maf_figname = f"{ sig_name }_maf.png"
