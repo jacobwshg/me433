@@ -8,17 +8,16 @@
 #include <cstdint>
 
 // SPI Defines
-// We are going to use SPI 0, and allocate it to the following GPIO pins
-// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
-#define SPI_PORT spi0
+
+#define SPI_PORT spi1
 
 namespace Pins
 {
     static constexpr uint
-        SPI_MISO { 16 },
-        SPI_CS   { 17 },
-        SPI_SCK  { 18 },
-        SPI_MOSI { 19 }
+        SPI_MISO { 8  },
+        SPI_CS   { 9  },
+        SPI_SCK  { 10 },
+        SPI_MOSI { 11 }
         ;
 }
 
