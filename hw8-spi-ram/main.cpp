@@ -14,7 +14,7 @@
 
 namespace
 {
-    static constexpr std::uint32_t BAUD_KHZ { 400 };
+    static constexpr std::uint32_t BAUD_KHZ { 1000 };
     static constexpr std::uint32_t BAUD_HZ { BAUD_KHZ * 1000 };
 
     // sine wave frequency
@@ -24,7 +24,7 @@ namespace
         UPD_HZ { 1000 };
     static constexpr float INV_UPD_HZ { 1.0F / UPD_HZ };
     static constexpr absolute_time_t
-        SLEEP_UNTIL_DT { 100'000 / UPD_HZ };
+        SLEEP_UNTIL_DT { 1'000'000 / UPD_HZ };
 
     static constexpr std::uint32_t
         SIN_SAMPLES_PER_PERIOD { UPD_HZ / SIN_HZ };
