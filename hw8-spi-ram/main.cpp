@@ -43,11 +43,12 @@ write_sine_cache( void )
 
     for ( std::size_t i { 0 }; i<::SIN_SAMPLES_PER_PERIOD; ++i )
     {
-        float rad { static_cast< float >( rad ) * ::SIN_SAMPLE_DRAD };
+        float rad { static_cast< float >( i ) * ::SIN_SAMPLE_DRAD };
         float sin_val { std::sin( rad ) };
         // map from [ -1, 1 ] to [ 0, 1 ]
         sin_val = 0.5F + ( 0.5F * sin_val ); 
         const std::uint16_t Vout { MCP4912::Vout_from_scale( sin_val ) };
+        std::printf( "writing sin sample %zu: %04u\n", i, Vout );
 
         MCP_23K256::seqwrite_u16( Vout );
     }
@@ -64,7 +65,7 @@ main()
     spi_init( SPI_PORT, ::BAUD_HZ );
     spi_set_format( SPI_PORT, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST );
 
-    //gpio_set_function( Pins::SPI_MISO, GPIO_FUNC_SPI );
+    gpio_set_function( Pins::SPI_MISO, GPIO_FUNC_SPI );
     //gpio_set_function( Pins::SPI_CS,   GPIO_FUNC_SIO );
     gpio_set_function( Pins::SPI_SCK,  GPIO_FUNC_SPI );
     gpio_set_function( Pins::SPI_MOSI, GPIO_FUNC_SPI );
@@ -82,7 +83,7 @@ main()
     // test reference voltage
     MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::A, MCP4912::Vout_from_f( 3.3F ) );
     MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::B, MCP4912::Vout_from_f( 3.3F ) );
-    sleep_ms( 100 );
+    sleep_ms( 10000 );
 
     write_sine_cache();
 
@@ -97,11 +98,12 @@ main()
         MCP_23K256::end_seqread( Pins::SPI_CSn_RAM );
         ram_rd_addr += 2;
 
-        std::printf( "sin Vout: %04u\n", Vout_sin );
+        std::printf( "read sin Vout: %04u\n", Vout_sin );
 
         MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::B, Vout_sin );
 
-        sleep_until( now + ::SLEEP_UNTIL_DT );
+        //sleep_until( now + ::SLEEP_UNTIL_DT );
+        sleep_ms( 1000 );
 
     }
 }

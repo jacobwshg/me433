@@ -16,9 +16,10 @@ namespace Pins
     static constexpr uint
         SPI_MISO    { 8  },
         SPI_CSn_DAC { 9  },
-        SPI_CSn_RAM { 13 },
         SPI_SCK     { 10 },
-        SPI_MOSI    { 11 }
+        SPI_MOSI    { 11 },
+        
+        SPI_CSn_RAM { 13 }
         ;
 }
 
