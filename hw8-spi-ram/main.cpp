@@ -14,7 +14,7 @@
 
 namespace
 {
-    static constexpr std::uint32_t BAUD_KHZ { 12 };
+    static constexpr std::uint32_t BAUD_KHZ { 400 };
     static constexpr std::uint32_t BAUD_HZ { BAUD_KHZ * 1000 };
 
     // sine wave frequency
