@@ -38,18 +38,18 @@ namespace MCP_23K256
 
     static inline void init( void );
 
-    static inline void setmode( const Mode );
+    static inline void setmode( const Mode mode );
 
-    static inline std::uint16_t make_addr( const std::uint16_t, const std::uint16_t );
-    static inline void parse_addr( const std::uint16_t, std::uint16_t &, std::uint16_t & );
+    static inline std::uint16_t make_addr( const std::uint16_t page_id_, const std::uint16_t page_ofs_ );
+    static inline void parse_addr( const std::uint16_t addr, std::uint16_t &page_id, std::uint16_t &page_ofs );
 
-    static inline void begin_seqwrite( const uint, const std::uint16_t );
-    static inline void seqwrite_u16( const std::uint16_t );
-    static inline void end_seqwrite( const uint );
+    static inline void begin_seqwrite( const uint pin, const std::uint16_t addr );
+    static inline void seqwrite_u16( const std::uint16_t val );
+    static inline void end_seqwrite( const uint pin );
 
-    static inline void begin_seqread( const uint, const std::uint16_t );
+    static inline void begin_seqread( const uint pin, const std::uint16_t addr );
     static inline std::uint16_t seqread_u16( void );
-    static inline void end_seqread( const uint );
+    static inline void end_seqread( const uint pin );
 
 
 }
@@ -100,9 +100,9 @@ MCP_23K256::begin_seqwrite( const uint pin, const std::uint16_t addr )
 }
 
 static inline void
-MCP_23K256::seqwrite_u16( const std::uint16_t data )
+MCP_23K256::seqwrite_u16( const std::uint16_t val )
 {
-    const std::array< std::uint8_t, 2 > buf { Util::u8s_from_u16( data ) };
+    const std::array< std::uint8_t, 2 > buf { Util::u8s_from_u16( val ) };
     spi_write_blocking( SPI_PORT, buf.data(), 2 );
 }
 

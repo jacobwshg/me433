@@ -46,11 +46,11 @@ namespace MCP4912
     //
     // make a 16-bit Vout value from a raw scale between 0 and 1
     //
-    static inline std::uint16_t Vout_from_scale( const float );
+    static inline std::uint16_t Vout_from_scale( const float raw_scale_f );
     //
     // make a 16-bit Vout value from a raw value between 0 and 3.3V
     //
-    static inline std::uint16_t Vout_from_f( const float );
+    static inline std::uint16_t Vout_from_f( const float raw_Vout_f );
 
 }
 
