@@ -38,7 +38,8 @@ namespace MCP_23K256
 
     static inline void init( void );
 
-    static inline void setmode( const Mode mode );
+    static inline void setmode( const uint pin, const Mode mode );
+    static inline Mode getmode( const uint pin );
 
     static inline std::uint16_t make_addr( const std::uint16_t page_id_, const std::uint16_t page_ofs_ );
     static inline void parse_addr( const std::uint16_t addr, std::uint16_t &page_id, std::uint16_t &page_ofs );
@@ -61,13 +62,28 @@ MCP_23K256::init( void )
 }
 
 static inline void
-MCP_23K256::setmode( const MCP_23K256::Mode mode )
+MCP_23K256::setmode( const uint pin, const MCP_23K256::Mode mode )
 {
-    std::array< std::uint8_t, 2 > buf {};
-    buf[ 0 ] = Instr::WRSR;
-    buf[ 1 ] = ( static_cast< std::uint8_t >( mode ) << STATUS_MODE_OFS )
-        | 0b1; // assert HOLDn
-    spi_write_blocking( SPI_PORT, buf.data(), 2 );
+    std::uint8_t mode_bits { static_cast< std::uint8_t >( mode ) << STATUS_MODE_OFS };
+    mode_bits |= 0b1; // set write enable bit
+
+    SPIUtil::cs_select( pin );
+    spi_write_blocking( SPI_PORT, &Instr::WRSR, 1 );
+    spi_write_blocking( SPI_PORT, &mode_bits, 1 );
+    SPIUtil::cs_deselect( pin );
+}
+
+static inline MCP_23K256::Mode
+MCP_23K256::getmode( const uint pin )
+{
+    std::uint8_t buf {};
+ 
+    SPIUtil::cs_select( pin );
+    spi_write_blocking( SPI_PORT, &Instr::RDSR, 1 );
+    spi_read_blocking( SPI_PORT, 0U, &buf, 1 );
+    SPIUtil::cs_deselect( pin );
+
+    return static_cast< Mode >( ( buf >> STATUS_MODE_OFS ) & 0b11 );
 }
 
 static inline std::uint16_t

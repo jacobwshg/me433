@@ -42,7 +42,7 @@ namespace MCP4912
 
     static inline std::uint16_t make_command( const Channel chan );
 
-    static inline void write( const uint pin, const Channel, const std::uint16_t );
+    static inline void write( const uint pin, const Channel, const std::uint16_t data );
 
     //
     // make a 16-bit Vout value from a raw scale between 0 and 1

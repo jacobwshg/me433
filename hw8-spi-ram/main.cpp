@@ -24,7 +24,7 @@ namespace
         UPD_HZ { 1000 };
     static constexpr float INV_UPD_HZ { 1.0F / UPD_HZ };
     static constexpr absolute_time_t
-        SLEEP_UNTIL_DT { 1'000'000 / UPD_HZ };
+        SLEEP_UNTIL_DT { 100'000 / UPD_HZ };
 
     static constexpr std::uint32_t
         SIN_SAMPLES_PER_PERIOD { UPD_HZ / SIN_HZ };
@@ -38,8 +38,7 @@ namespace
 void
 write_sine_cache( void )
 {
-    static constexpr std::uint16_t RAM_BASE_ADDR { 0x0 };
-    MCP_23K256::begin_seqwrite( Pins::SPI_CSn_RAM, RAM_BASE_ADDR );
+    std::int16_t ram_wr_addr { 0x0 };
 
     for ( std::size_t i { 0 }; i<::SIN_SAMPLES_PER_PERIOD; ++i )
     {
@@ -48,12 +47,15 @@ write_sine_cache( void )
         // map from [ -1, 1 ] to [ 0, 1 ]
         sin_val = 0.5F + ( 0.5F * sin_val ); 
         const std::uint16_t Vout { MCP4912::Vout_from_scale( sin_val ) };
-        std::printf( "writing sin sample %zu: %04u\n", i, Vout );
+        //const std::uint16_t Vout { MCP4912::Vout_from_f( 2.5F ) };
+        std::printf( "writing sin sample %zu: %04u ( %08x )\n", i, Vout, Vout );
 
+        MCP_23K256::begin_seqwrite( Pins::SPI_CSn_RAM, ram_wr_addr );
         MCP_23K256::seqwrite_u16( Vout );
+        MCP_23K256::end_seqwrite( Pins::SPI_CSn_RAM );
+        ram_wr_addr += 2;
     }
 
-    MCP_23K256::end_seqwrite( Pins::SPI_CSn_RAM );
 }
 
 int
@@ -80,10 +82,14 @@ main()
     gpio_put( Pins::SPI_CSn_RAM, 1 );
     // For more examples of SPI use see https://github.com/raspberrypi/pico-examples/tree/master/spi
 
+    // never forget
+    MCP_23K256::setmode( Pins::SPI_CSn_RAM, MCP_23K256::Mode::SEQ );
+    sleep_ms( 10000 );
+    std::printf( "MCP_23K256 mode: %u\n", static_cast< std::uint8_t >( MCP_23K256::getmode( Pins::SPI_CSn_RAM ) ) );
+
     // test reference voltage
     MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::A, MCP4912::Vout_from_f( 3.3F ) );
     MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::B, MCP4912::Vout_from_f( 3.3F ) );
-    sleep_ms( 10000 );
 
     write_sine_cache();
 
@@ -97,13 +103,16 @@ main()
         const std::uint16_t Vout_sin { MCP_23K256::seqread_u16() };
         MCP_23K256::end_seqread( Pins::SPI_CSn_RAM );
         ram_rd_addr += 2;
+        if ( ram_rd_addr >= ::SIN_SAMPLES_PER_PERIOD * 2 )
+        {
+            ram_rd_addr = 0x0;
+        }
 
-        std::printf( "read sin Vout: %04u\n", Vout_sin );
+        std::printf( "read sin Vout: %04u ( %08x )\n", Vout_sin, Vout_sin );
 
         MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::B, Vout_sin );
 
-        //sleep_until( now + ::SLEEP_UNTIL_DT );
-        sleep_ms( 1000 );
-
+        sleep_until( now + ::SLEEP_UNTIL_DT );
+        
     }
 }
