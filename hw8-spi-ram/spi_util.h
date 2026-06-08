@@ -14,10 +14,11 @@
 namespace Pins
 {
     static constexpr uint
-        SPI_MISO { 8  },
-        SPI_CS   { 9  },
-        SPI_SCK  { 10 },
-        SPI_MOSI { 11 }
+        SPI_MISO    { 8  },
+        SPI_CSn_DAC { 9  },
+        SPI_CSn_RAM { 13 },
+        SPI_SCK     { 10 },
+        SPI_MOSI    { 11 }
         ;
 }
 
@@ -26,11 +27,11 @@ namespace SPIUtil
     namespace Aux
     {
         static inline void do_nop( void );
-        static inline void write_cs( const bool );
+        static inline void write_cs( const uint, const bool );
     }
 
-    static inline void cs_select( void );
-    static inline void cs_deselect( void );
+    static inline void cs_select( const uint );
+    static inline void cs_deselect( const uint );
 }
 
 static inline void
@@ -44,23 +45,23 @@ SPIUtil::Aux::do_nop( void )
 }
 
 static inline void
-SPIUtil::Aux::write_cs( const bool val )
+SPIUtil::Aux::write_cs( const uint pin, const bool val )
 {
     do_nop();
-    gpio_put( Pins::SPI_CS, val ? 1 : 0 );
+    gpio_put( pin, val ? 1 : 0 );
     do_nop();
 }
 
 static inline void
-SPIUtil::cs_select( void )
+SPIUtil::cs_select( const uint pin )
 {
-    Aux::write_cs( 0 );
+    Aux::write_cs( pin, 0 );
 }
 
 static inline void
-SPIUtil::cs_deselect( void )
+SPIUtil::cs_deselect( const uint pin )
 {
-    Aux::write_cs( 1 );
+    Aux::write_cs( pin, 1 );
 }
 
 

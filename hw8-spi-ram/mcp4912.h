@@ -41,7 +41,7 @@ namespace MCP4912
 
     static inline std::uint16_t make_command( const Channel chan );
 
-    static inline void write( const Channel, const std::uint16_t );
+    static inline void write( const uint pin, const Channel, const std::uint16_t );
 
     //
     // make a 16-bit Vout value from a raw scale between 0 and 1
@@ -62,12 +62,11 @@ MCP4912::make_command( const Channel chan )
 }
 
 static inline void
-MCP4912::write(  const Channel chan, const std::uint16_t data )
+MCP4912::write(  const uint pin, const Channel chan, const std::uint16_t data )
 {
     std::uint16_t pkt
     {
-        make_command( chan )
-        | ( ( data & DATA_MSK ) << DATA_OFS )
+        make_command( chan ) | ( ( data & DATA_MSK ) << DATA_OFS )
     };
     
     // static std::array< std::uint8_t, 2 > buf {};
@@ -79,11 +78,11 @@ MCP4912::write(  const Channel chan, const std::uint16_t data )
     // SPIUtil::cs_deselect();
 
     //pkt = __builtin_bswap16( pkt );
-    SPIUtil::cs_select();
+    SPIUtil::cs_select( pin );
     sleep_us( 1 );
     spi_write16_blocking( SPI_PORT, &pkt, 1 );
     sleep_us( 1 );
-    SPIUtil::cs_deselect();
+    SPIUtil::cs_deselect( pin );
 }
 
 static inline std::uint16_t

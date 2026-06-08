@@ -1,6 +1,7 @@
 
 #include "spi_util.h"
 #include "mcp4912.h"
+#include "mcp_23k256.h"
 
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
@@ -95,13 +96,17 @@ main()
     gpio_set_function( Pins::SPI_MOSI, GPIO_FUNC_SPI );
 
     // Chip select is active-low, so we'll initialise it to a driven-high state
-    gpio_init( Pins::SPI_CS );
-    gpio_set_dir( Pins::SPI_CS, GPIO_OUT );
-    gpio_put( Pins::SPI_CS, 1 );
+    gpio_init( Pins::SPI_CSn_DAC );
+    gpio_set_dir( Pins::SPI_CSn_DAC, GPIO_OUT );
+    gpio_put( Pins::SPI_CSn_DAC, 1 );
+
+    gpio_init( Pins::SPI_CSn_RAM );
+    gpio_set_dir( Pins::SPI_CSn_RAM, GPIO_OUT );
+    gpio_put( Pins::SPI_CSn_RAM, 1 );
     // For more examples of SPI use see https://github.com/raspberrypi/pico-examples/tree/master/spi
 
-    MCP4912::write( MCP4912::Channel::A, MCP4912::Vout_from_f( 3.3F ) );
-    MCP4912::write( MCP4912::Channel::B, MCP4912::Vout_from_f( 3.3F ) );
+    MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::A, MCP4912::Vout_from_f( 3.3F ) );
+    MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::B, MCP4912::Vout_from_f( 3.3F ) );
     sleep_ms( 100 );
 
     std::size_t i_sin { 0 }, i_tri { 0 };
@@ -116,8 +121,8 @@ main()
 
         std::printf( "sin: %04u, tri: %04u\n", Vout_sin, Vout_tri );
 
-        MCP4912::write( MCP4912::Channel::A, Vout_sin );
-        MCP4912::write( MCP4912::Channel::B, Vout_tri );
+        MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::A, Vout_sin );
+        MCP4912::write( Pins::SPI_CSn_DAC, MCP4912::Channel::B, Vout_tri );
 
         if ( ++i_sin == SIN_SAMPLES_PER_PERIOD ) { i_sin = 0; }
         if ( ++i_tri == TRI_SAMPLES_PER_PERIOD ) { i_tri = 0; }
