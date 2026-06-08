@@ -85,7 +85,7 @@ main()
 
     init_Vout_cache();
 
-    // SPI initialisation. This example will use SPI at 1MHz.
+    // SPI initialisation
     spi_init( SPI_PORT, ::BAUD_HZ );
     spi_set_format( SPI_PORT, 16, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST );
 
@@ -100,6 +100,7 @@ main()
     gpio_put( Pins::SPI_CS, 1 );
     // For more examples of SPI use see https://github.com/raspberrypi/pico-examples/tree/master/spi
 
+    // test Vref
     MCP4912::write( MCP4912::Channel::A, MCP4912::Vout_from_f( 3.3F ) );
     MCP4912::write( MCP4912::Channel::B, MCP4912::Vout_from_f( 3.3F ) );
     sleep_ms( 100 );
@@ -121,9 +122,7 @@ main()
 
         if ( ++i_sin == SIN_SAMPLES_PER_PERIOD ) { i_sin = 0; }
         if ( ++i_tri == TRI_SAMPLES_PER_PERIOD ) { i_tri = 0; }
-        //sleep_until( now + ::SLEEP_UNTIL_DT );
-
-        sleep_ms( 5 );
+        sleep_until( now + ::SLEEP_UNTIL_DT );
 
     }
 }
