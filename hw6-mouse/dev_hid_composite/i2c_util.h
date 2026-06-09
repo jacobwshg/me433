@@ -1,0 +1,43 @@
+
+#ifndef I2C_UTIL_H
+#define I2C_UTIL_H
+
+#include "hardware/i2c.h"
+#include "pico/stdlib.h"
+
+#include <stddef.h>
+#include <stdint.h>
+
+#define I2C_PORT i2c0
+
+#define I2C_SDA_PIN 4
+#define I2C_SCL_PIN 5
+
+static inline int16_t
+i16_from_u8buf( const uint8_t *buf )
+{
+    static const size_t HI = 0 , LO = 1 ;
+    return ( ( ( int16_t )buf[ HI ] ) << 8 ) | ( int16_t )buf[ LO ]; 
+}
+
+static inline void
+read_i2c_device( 
+    const uint8_t dev_addr, const uint8_t *reg_addr,
+    uint8_t *buf, const size_t len
+)
+{
+    i2c_write_blocking( I2C_PORT, dev_addr, reg_addr, 1, true );
+    i2c_read_blocking( I2C_PORT, dev_addr, buf, len, false );
+}
+
+static inline void
+write_i2c_device(
+    const uint8_t dev_addr, const uint8_t *reg_addr,
+    const uint8_t *buf, const size_t len
+)
+{
+    i2c_write_blocking( I2C_PORT, dev_addr, reg_addr, 1, true );
+    i2c_write_blocking( I2C_PORT, dev_addr, buf, len, false );
+}
+
+#endif
