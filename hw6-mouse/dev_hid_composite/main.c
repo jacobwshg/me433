@@ -41,6 +41,8 @@
 // MACRO CONSTANT TYPEDEF PROTYPES
 //--------------------------------------------------------------------+
 
+#define BUTTON_PIN 15
+
 /* Blink pattern
  * - 250 ms  : device not mounted
  * - 1000 ms : device mounted
@@ -56,7 +58,6 @@ static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
 void led_blinking_task(void);
 void hid_task(void);
-
 
 static int8_t CIRCLE_X_CACHE[ 360 ];
 static int8_t CIRCLE_Y_CACHE[ 360 ];
@@ -74,7 +75,29 @@ init_circle_cache( void )
   }
 }
 
+static void
+init_button( void )
+{
+  gpio_init( BUTTON_PIN );
+  gpio_set_dir( BUTTON_PIN, GPIO_IN );
+  gpio_pull_up( BUTTON_PIN );
+}
+
 static struct MPU6050_sensor_data SENSORDATA;
+
+enum MouseMode { CIRCLE=0, SENSOR=1 };
+enum MouseMode MOUSEMODE = CIRCLE;
+
+static inline void
+refresh_mouse_mode( void )
+{
+  if ( !gpio_get( BUTTON_PIN ) )
+  {
+    MOUSEMODE = CIRCLE ? SENSOR : CIRCLE;
+  }
+}
+
+static bool BTN_VAL = false;
 
 /*------------- MAIN -------------*/
 int main(void)
@@ -95,6 +118,8 @@ int main(void)
 
   while (1)
   {
+    refresh_mouse_mode();
+
     tud_task(); // tinyusb device task
     led_blinking_task();
 
@@ -206,8 +231,14 @@ static void send_hid_report(uint8_t report_id, uint32_t btn)
 
 
       int8_t dx = 0, dy = 0;
-      get_circle_xy( &dx, &dy );
-      //get_sensor_xy( &dx, &dy );
+      if ( MOUSEMODE == CIRCLE )
+      {
+        get_circle_xy( &dx, &dy );
+      }
+      else
+      {
+        get_sensor_xy( &dx, &dy );
+      }
 
       // no button, no scroll, no pan
       tud_hid_mouse_report( REPORT_ID_MOUSE, 0x00, dx, dy, 0, 0 );
