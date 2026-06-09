@@ -13,13 +13,6 @@
 #define I2C_SDA_PIN 4
 #define I2C_SCL_PIN 5
 
-static inline int16_t
-i16_from_u8buf( const uint8_t *buf )
-{
-    static const size_t HI = 0 , LO = 1 ;
-    return ( ( ( int16_t )buf[ HI ] ) << 8 ) | ( int16_t )buf[ LO ]; 
-}
-
 static inline void
 read_i2c_device( 
     const uint8_t dev_addr, const uint8_t *reg_addr,
