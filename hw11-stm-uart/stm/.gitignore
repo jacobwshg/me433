@@ -1,0 +1,7 @@
+# Build outputs
+./Debug/
+./Release/
+
+# IDE local settings and logs
+./.settings/
+./.launch
