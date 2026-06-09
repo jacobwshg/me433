@@ -74,6 +74,8 @@ init_circle_cache( void )
   }
 }
 
+static struct MPU6050_sensor_data SENSORDATA;
+
 /*------------- MAIN -------------*/
 int main(void)
 {
@@ -98,6 +100,18 @@ int main(void)
 
     hid_task();
   }
+}
+
+void
+get_circle_xy( int8_t *x, int8_t *y )
+{
+  if ( !( x && y ) ) { return; }
+
+  static size_t deg = 0;
+  *x = CIRCLE_X_CACHE[ deg ];
+  *y = CIRCLE_Y_CACHE[ deg ];
+
+  if ( ++deg == 360 ) { deg = 0; }
 }
 
 //--------------------------------------------------------------------+
@@ -168,11 +182,13 @@ static void send_hid_report(uint8_t report_id, uint32_t btn)
       int8_t const delta = 2;
 
 
-      const int8_t
-        dx = CIRCLE_X_CACHE[ deg ],
-        dy = CIRCLE_Y_CACHE[ deg ];
-      ++deg;
-      if ( deg==360 ) { deg = 0; }
+      int8_t dx, dy;
+      get_circle_xy( &dx, &dy );
+
+      // MPU6050_read_sensor( &SENSORDATA );
+      // const int8_t
+      //   dx = ( int8_t ) ( ( float )( SENSORDATA.temp ) * 0.001F ),
+      //   dy = ( int8_t ) ( ( float )( SENSORDATA.temp ) * 0.001F );
 
       // no button, no scroll, no pan
       tud_hid_mouse_report( REPORT_ID_MOUSE, 0x00, dx, dy, 0, 0 );
