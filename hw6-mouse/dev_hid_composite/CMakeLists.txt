@@ -35,8 +35,6 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-cmake_minimum_required(VERSION 3.13)
-
 add_executable(dev_hid_composite)
 
 target_sources(dev_hid_composite PUBLIC
