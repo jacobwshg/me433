@@ -10,8 +10,20 @@
 
 #define I2C_PORT i2c0
 
+#define I2C_BAUD_KHZ 400
+#define I2C_BAUD_HZ ( I2C_BAUD_KHZ * 1000 )
+
 #define I2C_SDA_PIN 4
 #define I2C_SCL_PIN 5
+
+static inline void
+my_i2c_init( void )
+{
+    i2c_init( I2C_PORT, I2C_BAUD_HZ );
+    gpio_set_function( I2C_SDA_PIN, GPIO_FUNC_I2C ); gpio_pull_up( I2C_SDA_PIN );
+    gpio_set_function( I2C_SCL_PIN, GPIO_FUNC_I2C ); gpio_pull_up( I2C_SCL_PIN );
+
+}
 
 static inline void
 read_i2c_device( 

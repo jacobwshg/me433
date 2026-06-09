@@ -29,11 +29,13 @@
 #include "tusb.h"
 #include "usb_descriptors.h"
 #include "hardware/gpio.h"
+#include "hardware/i2c.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+#include <math.h>
 
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF PROTYPES
@@ -55,6 +57,23 @@ static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 void led_blinking_task(void);
 void hid_task(void);
 
+
+static int8_t CIRCLE_X_CACHE[ 360 ];
+static int8_t CIRCLE_Y_CACHE[ 360 ];
+static size_t deg = 0;
+static void
+init_circle_cache( void )
+{
+  static const float UNIT_OFS = 5.0F;
+  static const float DEG_AS_RAD = M_PI / 180.0F;
+  for ( size_t i=0; i<360; ++i )
+  {
+    const float rad = ( float ) i * DEG_AS_RAD;
+    CIRCLE_X_CACHE[ i ] = ( int8_t ) ( UNIT_OFS * cos( rad ) );
+    CIRCLE_Y_CACHE[ i ] = ( int8_t ) ( UNIT_OFS * sin( rad ) );  
+  }
+}
+
 /*------------- MAIN -------------*/
 int main(void)
 {
@@ -66,6 +85,11 @@ int main(void)
   if (board_init_after_tusb) {
     board_init_after_tusb();
   }
+
+  init_circle_cache();
+
+  my_i2c_init();
+  MPU6050_init();
 
   while (1)
   {
@@ -143,8 +167,16 @@ static void send_hid_report(uint8_t report_id, uint32_t btn)
     {
       int8_t const delta = 2;
 
-      // no button, right + down, no scroll, no pan
-      tud_hid_mouse_report(REPORT_ID_MOUSE, 0x00, delta, delta, 0, 0);
+
+      const int8_t
+        dx = CIRCLE_X_CACHE[ deg ],
+        dy = CIRCLE_Y_CACHE[ deg ];
+      ++deg;
+      if ( deg==360 ) { deg = 0; }
+
+      // no button, no scroll, no pan
+      tud_hid_mouse_report( REPORT_ID_MOUSE, 0x00, dx, dy, 0, 0 );
+
     }
     break;
 
