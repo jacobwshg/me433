@@ -124,7 +124,7 @@ int main(void)
 
   /* -- Sample board code to switch on leds ---- */
   BSP_LED_On(LED_GREEN);
-  BSP_LED_On(LED_BLUE);
+//  BSP_LED_On(LED_BLUE);
 
   //HAL_Delay( 10000 );
 
@@ -135,22 +135,24 @@ int main(void)
   while (1)
   {
 
+    //
+    /* -- Sample board code to toggle leds ---- */
+    BSP_LED_Toggle(LED_GREEN);
+    BSP_LED_Toggle(LED_BLUE);
+
     /* -- Sample board code for User push-button in interrupt mode ---- */
     if (BspButtonState == BUTTON_PRESSED)
     {
-      /* Update button state */
+      /* Reset button state */
       BspButtonState = BUTTON_RELEASED;
-      /* -- Sample board code to toggle leds ---- */
-      BSP_LED_Toggle(LED_GREEN);
-      BSP_LED_Toggle(LED_BLUE);
 
       /* ..... Perform your action ..... */
       printf( "Segmentation fault (core dumped)\r\n" );
-      HAL_Delay( 1000 );
     }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    HAL_Delay( 3000 );
   }
   /* USER CODE END 3 */
 }
