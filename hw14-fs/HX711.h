@@ -20,11 +20,11 @@ static inline void
 HX711::init( void )
 {
     gpio_init( PIN_DT );
-    gpio_set_dir( PIN_DT, false );
+    gpio_set_dir( PIN_DT, GPIO_IN );
     gpio_pull_up( PIN_DT );
 
     gpio_init( PIN_SCK );
-    gpio_set_dir( PIN_SCK, true );
+    gpio_set_dir( PIN_SCK, GPIO_OUT );
 
     gpio_put( PIN_SCK, 0 );
 }
@@ -64,9 +64,10 @@ HX711::read_sample( void )
 
     reset_gain();
 
-    if ( dout & 0x80'0000 )
+    // sign extend
+    if ( 1 & ( dout >> 23 ) )
     {
-        dout |= 0xff00'0000;
+        dout |= ( ( ~0 ) << 24 );
     }
     return dout;
 }
