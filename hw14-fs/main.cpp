@@ -2,6 +2,7 @@
 #include "HX711.h"
 #include "pico/stdlib.h"
 #include <cstdio>
+#include <array>
 
 namespace IIR
 {
@@ -31,8 +32,11 @@ int main()
     //     std::fclose( fp );
     // } else { std::printf( "open failed\n" ); }
 
+
+
     while ( true )
     {
+
         HX711::wait_sample_ready();
         const std::int32_t dout { HX711::read_sample() };
 
