@@ -42,6 +42,6 @@ int main()
 
         const absolute_time_t us_since_boot { get_absolute_time() };
         const std::uint32_t ms_since_boot { to_ms_since_boot( us_since_boot ) };
-        std::printf( "%9d ( filtered %9d ) @ %u ms\n", dout, iir_avg, ms_since_boot );
+        std::printf( "%d,%d,%u\n", dout, iir_avg, ms_since_boot );
     }
 }
