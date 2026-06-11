@@ -49,7 +49,7 @@ def plot_td_fd_cmp(
 ):
 	fig, ( ax1, ax2 ) = plt.subplots( 2, 1 )
 	ax1.plot( ts, raw_td, "black" )
-	ax1.plot( ts, filtered_td, "red" )
+	ax1.plot( ts, filtered_td, "blue" )
 	ax1.set_xlabel( "time" )
 	ax1.set_ylabel( "ampl" )
 	ax2.loglog( freqs, abs( raw_fd ), "black" )
@@ -117,7 +117,7 @@ if __name__ == "__main__":
 	#plot_loglog( freqs, fft_out )
 
 	figname = f"{ sig_name }.png"
-	title = sig_name + f" (Fs={ int( sampling_rate ) }Hz)"
+	title = sig_name + f" (Fs={ int( sampling_rate ) }Hz, { cnt } samples)"
 	plot_td_fd_cmp(
 		ts, base, iir_out, freqs,
 		fft_out, iir_fft_out,

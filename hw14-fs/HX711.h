@@ -13,7 +13,7 @@ namespace HX711
     static inline std::int32_t read_sample( void );
     static inline void reset_gain( void );
 
-    static constexpr std::uint64_t SLEEP_INTERVAL { 50 };
+    static constexpr std::uint64_t SLEEP_INTERVAL { 20 };
 }
 
 static inline void
@@ -43,9 +43,9 @@ static inline void
 HX711::reset_gain( void )
 {   
     gpio_put( PIN_SCK, 1 );
-    sleep_us( 1 );
+    sleep_us( SLEEP_INTERVAL );
     gpio_put( PIN_SCK, 0 );
-    sleep_us( 1 );
+    sleep_us( SLEEP_INTERVAL );
 
 }
 

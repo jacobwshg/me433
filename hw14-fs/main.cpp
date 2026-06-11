@@ -6,8 +6,8 @@
 
 namespace IIR
 {
-    static constexpr float A { 0.3F };
-    static constexpr float B { 0.7F };
+    static constexpr float A { 0.9F };
+    static constexpr float B { 1.0F - A };
     float avg { 0.0F };
 
     static inline float iir( const float cur )
@@ -44,8 +44,8 @@ int main()
         const float iir_avg_f { IIR::iir( dout_f ) };
         const std::int32_t iir_avg { static_cast< std::int32_t >( iir_avg_f ) };
 
-        const absolute_time_t us_since_boot { get_absolute_time() };
-        const std::uint32_t ms_since_boot { to_ms_since_boot( us_since_boot ) };
-        std::printf( "%d,%d,%u\n", dout, iir_avg, ms_since_boot );
+        const absolute_time_t uptime_us { get_absolute_time() };
+        const std::uint32_t uptime_ms { to_ms_since_boot( uptime_us ) };
+        std::printf( "%d,%d,%u\n", dout, iir_avg, uptime_ms );
     }
 }
