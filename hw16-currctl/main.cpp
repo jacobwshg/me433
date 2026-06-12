@@ -1,6 +1,7 @@
 
 #include "pin.h"
 #include "i2c_util.h"
+#include "pwm_util.h"
 
 #include "hardware/pwm.h"
 #include "hardware/adc.h"
@@ -8,6 +9,7 @@
 #include "pico/stdlib.h"
 
 #include <cstdio>
+#include <cstdint>
 
 int main()
 {
@@ -21,7 +23,9 @@ int main()
 
     while ( true )
     {
-        std::printf( "Hello, world!\n" );
-        sleep_ms( 1000 );
+        const std::uint16_t adc_val { adc_read() };
+
+        std::printf( "%u\n", adc_val );
+        sleep_ms( 100 );
     }
 }

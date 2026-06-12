@@ -11,8 +11,10 @@ namespace Pin
         // use I2C1
         I2C_SDA { 18 }, // physical 25
         I2C_SCL { 19 }, // 24
-        PWM1    { 20 }, // 26
-        PWM2    { 21 },
+
+        PWM_A   { 20 }, // 26
+        PWM_B   { 21 }, // 27
+
         // use ADC0
         ADC     { 26 } // 31 
         ;
