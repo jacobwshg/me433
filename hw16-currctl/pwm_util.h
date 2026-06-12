@@ -47,6 +47,8 @@ PWMUtil::init( void )
     pwm_config cfg { pwm_get_default_config() };
     pwm_config_set_clkdiv( &cfg, CLKDIV );
     pwm_config_set_wrap( &cfg, WRAP );
+
+
     pwm_init( SLICE, &cfg, true );
     pwm_set_enabled( SLICE, true );
 }

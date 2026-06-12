@@ -58,6 +58,7 @@ target_link_libraries(hw16-currctl
         hardware_pwm
         hardware_adc
         hardware_i2c
+        hardware_timer
         )
 
 pico_add_extra_outputs(hw16-currctl)
