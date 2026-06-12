@@ -38,7 +38,14 @@ PWMUtil::init( void )
     //     );
 
     gpio_set_function( Pin::PWM_A, GPIO_FUNC_PWM );
+    //gpio_pull_up( Pin::PWM_A );
+
     gpio_set_function( Pin::PWM_B, GPIO_FUNC_PWM );
+    //gpio_pull_up( Pin::PWM_B );
+
+    pwm_set_chan_level( SLICE, PWM_CHAN_A, 0 );
+    pwm_set_chan_level( SLICE, PWM_CHAN_B, 0 );
+
 
     // std::printf(
     //     "%f %d\n", CLKDIV, WRAP
