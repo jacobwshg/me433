@@ -1,4 +1,7 @@
 
+#ifndef PIN_H__
+#define PIN_H__ 
+
 #include "pico/stdlib.h"
 #include <cstddef>
 
@@ -15,3 +18,5 @@ namespace Pin
         ;
 
 }
+
+#endif
