@@ -12,6 +12,7 @@ namespace Pin
         I2C_SDA { 18 }, // physical 25
         I2C_SCL { 19 }, // 24
 
+        // use PWM slice 2
         PWM_A   { 20 }, // 26
         PWM_B   { 21 }, // 27
 

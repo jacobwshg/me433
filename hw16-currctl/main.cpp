@@ -21,11 +21,13 @@ int main()
 
     I2CUtil::init();
 
+    PWMUtil::init();
+
     while ( true )
     {
         const std::uint16_t adc_val { adc_read() };
 
-        std::printf( "%u\n", adc_val );
-        sleep_ms( 100 );
+        std::printf( "%u\r\n", adc_val );
+        sleep_ms( 200 );
     }
 }
