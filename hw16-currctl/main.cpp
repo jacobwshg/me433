@@ -75,12 +75,29 @@ int main()
 
     PWMUtil::init();
 
+    sleep_ms( 10000 );
+    std::printf( "INA219 no init config: 0x%X, power: %u, calib: %u\n",
+        INA219::read( INA219::Reg::CONFIG ),
+        INA219::read( INA219::Reg::POWER ),
+        INA219::read( INA219::Reg::CALIB )
+    );
+
+    INA219::init();
+    sleep_ms( 5000 );
+
+    std::printf( "INA219 after init config: 0x%X, power: %u, calib: %u\n",
+        INA219::read( INA219::Reg::CONFIG ),
+        INA219::read( INA219::Reg::POWER ),
+        INA219::read( INA219::Reg::CALIB )
+    );
+
+
     while ( true )
     {
         const std::uint16_t adc_val { adc_read() };
         const std::int16_t curr { INA219::read_current_raw() };
 
-        std::printf( "ADC: %u, curr: %d", adc_val, curr );
+        std::printf( "ADC: %u, curr: %d\r\n", adc_val, curr );
 
         sleep_ms( 200 );
     }
