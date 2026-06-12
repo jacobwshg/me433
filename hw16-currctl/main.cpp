@@ -1,10 +1,12 @@
 
-#include <stdio.h>
-#include "pico/stdlib.h"
+#include "pin.h"
 
 #include "hardware/pwm.h"
 #include "hardware/adc.h"
 #include "hardware/i2c.h"
+#include "pico/stdlib.h"
+
+#include <cstdio>
 
 int main()
 {
@@ -12,7 +14,7 @@ int main()
 
     while ( true )
     {
-        printf( "Hello, world!\n" );
+        std::printf( "Hello, world!\n" );
         sleep_ms( 1000 );
     }
 }
