@@ -8,6 +8,12 @@
 #include "pico/stdlib.h"
 #include <cstdio>
 
+
+/*
+ * decreasing chan A level spins CC,
+ * decreasing chan B level spins C
+ */
+
 namespace PWMUtil
 {
     static constexpr uint WRAP { 2400 };

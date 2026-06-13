@@ -12,11 +12,13 @@
 
 #include <cstdio>
 #include <cstdint>
+#include <array>
 
 namespace
 {
     static inline volatile std::int8_t STATE { 0 };
-    static float current_ref_f { 1.65F };
+    static inline float current_ref_f { 1.65F };
+
 }
 
 namespace PI
@@ -42,6 +44,21 @@ namespace PI
     }
 }
 
+static inline std::uint16_t get_adc_avg( const std::uint16_t adc_val )
+{
+    static constexpr std::size_t SAMPLE_CNT { 8 };
+    static std::array< std::uint16_t, SAMPLE_CNT > adc_ringbuf {};
+    static std::uint16_t adc_sum { 0 };
+    static std::size_t idx { 0 };
+
+    adc_sum -= adc_ringbuf[ idx ];
+    adc_ringbuf[ idx ] = adc_val;
+    adc_sum += adc_val;
+    if ( ++idx == SAMPLE_CNT ) { idx = 0; }
+    const std::uint16_t adc_avg { adc_sum / SAMPLE_CNT };
+    return adc_avg;
+}
+
 struct TimerCallback
 {
     static inline std::int32_t counter { 0 };
@@ -50,33 +67,47 @@ struct TimerCallback
     static inline bool
     operator()( __unused struct repeating_timer *t )
     {
-        if ( ::STATE )
+        // if ( ::STATE )
+        // {
+        //     const std::int16_t current { INA219::read_current_raw() };
+        //     current_f = INA219::tomA( current );
+        // }
+        // const float err { ::current_ref_f - current_f };
+        // const float ctlval = PI::update( err );
+
+        // const std::uint16_t pwm_duty { static_cast< std::uint16_t >( ctlval ) };
+        // //pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, pwm_duty );
+        // //pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, PWMUtil::WRAP );
+
+        // ++counter;
+
+        // if ( counter == 100 )
+        // {
+        //     ::current_ref_f = -current_ref_f; // Flip the step direction
+        // }
+
+        // if ( counter >= 400 )
+        // {
+        //     // Shutdown Sequence
+        //     ::STATE = 0;
+        //     counter = 0;
+        //     PI::reset();
+
+        //     // pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, PWMUtil::WRAP ); // Both High
+        //     // pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, PWMUtil::WRAP ); 
+        // }
+        const std::uint16_t adc_val { adc_read() };
+        const std::uint16_t adc_avg { get_adc_avg( adc_val ) };
+        const std::int16_t curr { INA219::read_current_raw() };
+
+        if ( adc_avg < 3950 )
         {
-            const std::int16_t current { INA219::read_current_raw() };
-            current_f = INA219::tomA( current );
+            pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, PWMUtil::WRAP ); 
+            pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, 2000 ); 
         }
-        const float err { ::current_ref_f - current_f };
-        const float ctlval = PI::update( err );
-
-        const std::uint16_t pwm_duty { static_cast< std::uint16_t >( ctlval ) };
-        //pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, pwm_duty );
-        //pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, PWMUtil::WRAP );
-
-        ++counter;
-
-        if ( counter == 100 )
+        if ( adc_avg > 4050 )
         {
-            ::current_ref_f = -current_ref_f; // Flip the step direction
-        }
-
-        if ( counter >= 400 )
-        {
-            // Shutdown Sequence
-            ::STATE = 0;
-            counter = 0;
-            PI::reset();
-
-            pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, PWMUtil::WRAP ); // Both High
+            pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, 2000 ); 
             pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, PWMUtil::WRAP ); 
         }
         return true;
@@ -114,26 +145,21 @@ int main()
 
 
     struct repeating_timer timer {};
-    // add_repeating_timer_ms(
-    //     -100, // callbacks begin 1ms apart - 1kHZ
-    //     &TimerCallback::operator(),
-    //     NULL, &timer
-    // );
+    add_repeating_timer_ms(
+        -100, // callbacks begin 1ms apart - 1kHZ
+        &TimerCallback::operator(),
+        NULL, &timer
+    );
 
     ::current_ref_f = 1.5F;
     ::STATE = 1;
 
-    
+    // C
     pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, PWMUtil::WRAP ); 
-    pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, PWMUtil::WRAP ); 
+    pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, 2250 ); 
 
     while ( true )
     {
-        const std::uint16_t adc_val { adc_read() };
-        const std::int16_t curr { INA219::read_current_raw() };
 
-        std::printf( "ADC: %u, curr: %f mA, x16 = %d \r\n", adc_val, INA219::tomA( curr ), curr * 16 );
-
-        sleep_ms( 200 );
     }
 }
