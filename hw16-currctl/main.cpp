@@ -18,8 +18,8 @@ namespace
 {
 
     static constexpr std::uint16_t
-        POT_HI { 3000 }, 
-        POT_LO { 2000 };
+        POT_HI { 4000 }, 
+        POT_LO { 3000 };
 
     static inline volatile std::int8_t STATE { 0 };
     static inline float current_ref_f { 1.65F };

@@ -17,7 +17,7 @@
 namespace PWMUtil
 {
     static constexpr uint WRAP { 2400 };
-    static constexpr uint DUTY_LOW { 1800 };
+    static constexpr uint DUTY_LOW { 1200 };
 
 
     static constexpr uint FREQ_KHZ { 20 };
