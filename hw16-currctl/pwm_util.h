@@ -17,6 +17,8 @@
 namespace PWMUtil
 {
     static constexpr uint WRAP { 2400 };
+    static constexpr uint DUTY_LOW { 2200 };
+
 
     static constexpr uint FREQ_KHZ { 20 };
     static constexpr uint FREQ_HZ  { FREQ_KHZ * 1000 };
@@ -31,6 +33,11 @@ namespace PWMUtil
 
     static inline void init( void );
 
+    static inline void set_chan_ab(
+        const uint duty_a, const uint duty_b
+    );
+
+    static inline void halt( void );
 }
 
 static inline void
@@ -64,6 +71,19 @@ PWMUtil::init( void )
 
     pwm_init( SLICE, &cfg, true );
     pwm_set_enabled( SLICE, true );
+}
+
+
+static inline void
+PWMUtil::set_chan_ab( const uint duty_a, const uint duty_b )
+{
+    pwm_set_both_levels( SLICE, duty_a, duty_b );
+}
+
+static inline void
+PWMUtil::halt( void )
+{
+    set_chan_ab( WRAP, WRAP );
 }
 
 #endif

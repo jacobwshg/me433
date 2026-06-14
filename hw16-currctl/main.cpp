@@ -16,6 +16,11 @@
 
 namespace
 {
+
+    static constexpr std::uint16_t
+        POT_HI { 4000 }, 
+        POT_LO { 3800 };
+
     static inline volatile std::int8_t STATE { 0 };
     static inline float current_ref_f { 1.65F };
 
@@ -67,48 +72,18 @@ struct TimerCallback
     static inline bool
     operator()( __unused struct repeating_timer *t )
     {
-        // if ( ::STATE )
-        // {
-        //     const std::int16_t current { INA219::read_current_raw() };
-        //     current_f = INA219::tomA( current );
-        // }
-        // const float err { ::current_ref_f - current_f };
-        // const float ctlval = PI::update( err );
 
-        // const std::uint16_t pwm_duty { static_cast< std::uint16_t >( ctlval ) };
-        // //pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, pwm_duty );
-        // //pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, PWMUtil::WRAP );
-
-        // ++counter;
-
-        // if ( counter == 100 )
-        // {
-        //     ::current_ref_f = -current_ref_f; // Flip the step direction
-        // }
-
-        // if ( counter >= 400 )
-        // {
-        //     // Shutdown Sequence
-        //     ::STATE = 0;
-        //     counter = 0;
-        //     PI::reset();
-
-        //     // pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, PWMUtil::WRAP ); // Both High
-        //     // pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, PWMUtil::WRAP ); 
-        // }
         const std::uint16_t adc_val { adc_read() };
         const std::uint16_t adc_avg { get_adc_avg( adc_val ) };
         const std::int16_t curr { INA219::read_current_raw() };
 
-        if ( adc_avg < 3950 )
+        if ( adc_avg > ::POT_HI )
         {
-            pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, PWMUtil::WRAP ); 
-            pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, 2000 ); 
+            PWMUtil::set_chan_ab( PWMUtil::WRAP, PWMUtil::DUTY_LOW );
         }
-        if ( adc_avg > 4050 )
+        if ( adc_avg < ::POT_LO )
         {
-            pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, 2000 ); 
-            pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, PWMUtil::WRAP ); 
+            PWMUtil::set_chan_ab( PWMUtil::DUTY_LOW, PWMUtil::WRAP );
         }
         return true;
     }
@@ -127,7 +102,7 @@ int main()
 
     PWMUtil::init();
 
-    sleep_ms( 10000 );
+    sleep_ms( 6000 );
     std::printf( "INA219 no init config: 0x%X, power: %u, calib: %u\n",
         INA219::read( INA219::Reg::CONFIG ),
         INA219::read( INA219::Reg::POWER ),
@@ -146,7 +121,7 @@ int main()
 
     struct repeating_timer timer {};
     add_repeating_timer_ms(
-        -100, // callbacks begin 1ms apart - 1kHZ
+        -10, // callbacks begin 1ms apart - 1kHZ
         &TimerCallback::operator(),
         NULL, &timer
     );
@@ -154,12 +129,17 @@ int main()
     ::current_ref_f = 1.5F;
     ::STATE = 1;
 
-    // C
-    pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_A, PWMUtil::WRAP ); 
-    pwm_set_chan_level( PWMUtil::SLICE, PWM_CHAN_B, 2250 ); 
+    PWMUtil::halt();
 
     while ( true )
     {
+    //     sleep_ms( 100 );
+    //     std::printf( "pot: %u, curr: %d\n", adc_read(), INA219::read_current_raw() );
+
+        sleep_ms( 5 );
+        const uint16_t pot { adc_read() };
+        std::printf( "pot: %u\n", pot );
+
 
     }
 }
