@@ -18,13 +18,19 @@ namespace
 {
 
     static constexpr std::uint16_t
-        POT_HI { 4000 }, 
-        POT_LO { 3800 };
+        POT_HI { 3000 }, 
+        POT_LO { 2000 };
 
     static inline volatile std::int8_t STATE { 0 };
     static inline float current_ref_f { 1.65F };
 
+    // assign after peripherals inited
+    static inline volatile std::uint16_t POT {};
+    static inline volatile std::int16_t CURR {};
+    static inline volatile std::int16_t VSHUNT {};
+
 }
+
 
 namespace PI
 {
@@ -32,20 +38,20 @@ namespace PI
         Kp { 0.5 },
         Ki { 0.1 };
 
-    static inline float S_error { 0.0F }; // error integral
+    static inline float S_err { 0.0F }; // error integral
 
     static inline float ctlval { 0.0F };
 
     static inline float update( const float err )
     {
-        S_error += err;
-        ctlval = Kp * err + Ki * S_error;
+        S_err += err;
+        ctlval = Kp * err + Ki * S_err;
         return ctlval;
     }
 
     static inline void reset( void )
     {
-        S_error = 0.0F;
+        S_err = 0.0F;
     }
 }
 
@@ -74,15 +80,15 @@ struct TimerCallback
     operator()( __unused struct repeating_timer *t )
     {
 
-        const std::uint16_t adc_val { adc_read() };
-        const std::uint16_t adc_avg { get_adc_avg( adc_val ) };
-        const std::int16_t curr { INA219::read_current_raw() };
+        ::POT =  adc_read();
+        ::CURR = INA219::read_current_raw();
+        ::VSHUNT = INA219::read_vshunt();
 
-        if ( adc_avg > ::POT_HI )
+        if ( ::POT > ::POT_HI )
         {
             PWMUtil::set_chan_ab( PWMUtil::WRAP, PWMUtil::DUTY_LOW );
         }
-        if ( adc_avg < ::POT_LO )
+        if ( ::POT < ::POT_LO )
         {
             PWMUtil::set_chan_ab( PWMUtil::DUTY_LOW, PWMUtil::WRAP );
         }
@@ -96,8 +102,8 @@ int main()
     stdio_init_all();
 
     adc_init();
-    adc_gpio_init( Pin::ADC );
-    adc_select_input( 1 );
+    adc_gpio_init( Pin::ADC0 );
+    //adc_select_input( 0 );
 
     I2CUtil::init();
 
@@ -119,25 +125,23 @@ int main()
         INA219::read( INA219::Reg::CALIB )
     );
 
+
+    ::POT  = { adc_read() };
+    ::CURR = { INA219::read_current_raw() };
+    ::VSHUNT = { INA219::read_vshunt() };
+
+
     struct repeating_timer timer {};
-    // add_repeating_timer_ms(
-    //     -10, // callbacks begin 1ms apart - 1kHZ
-    //     &TimerCallback::operator(),
-    //     NULL, &timer
-    // );
+    add_repeating_timer_ms( -1, &TimerCallback::operator(), NULL, &timer );
 
     PWMUtil::halt();
+    
+    //PWMUtil::set_chan_ab( PWMUtil::DUTY_LOW, PWMUtil::WRAP );
 
     while ( true )
     {
-    //     sleep_ms( 100 );
-    //     std::printf( "pot: %u, curr: %d\n", adc_read(), INA219::read_current_raw() );
-
-        sleep_ms( 10 );
-        const std::uint16_t pot { adc_read() };
-        const std::int16_t cur { INA219::read_current_raw() };
-        const std::int16_t vshunt { INA219::read_vshunt() };
-        std::printf( "pot: %u cur: %d, vshunt: %d\n", pot, cur, vshunt );
+        std::printf( "pot: %u cur: %d, vshunt: %d\n", ::POT, ::CURR, ::VSHUNT );
+        sleep_ms( 50 );
 
     }
 }
