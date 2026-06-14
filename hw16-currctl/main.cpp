@@ -59,7 +59,8 @@ static inline std::uint16_t get_adc_avg( const std::uint16_t adc_val )
     adc_sum -= adc_ringbuf[ idx ];
     adc_ringbuf[ idx ] = adc_val;
     adc_sum += adc_val;
-    if ( ++idx == SAMPLE_CNT ) { idx = 0; }
+    ++idx;
+    if ( idx == SAMPLE_CNT ) { idx = 0; }
     const std::uint16_t adc_avg { adc_sum / SAMPLE_CNT };
     return adc_avg;
 }
@@ -96,7 +97,7 @@ int main()
 
     adc_init();
     adc_gpio_init( Pin::ADC );
-    adc_select_input( 0 );
+    adc_select_input( 1 );
 
     I2CUtil::init();
 
@@ -118,16 +119,12 @@ int main()
         INA219::read( INA219::Reg::CALIB )
     );
 
-
     struct repeating_timer timer {};
-    add_repeating_timer_ms(
-        -10, // callbacks begin 1ms apart - 1kHZ
-        &TimerCallback::operator(),
-        NULL, &timer
-    );
-
-    ::current_ref_f = 1.5F;
-    ::STATE = 1;
+    // add_repeating_timer_ms(
+    //     -10, // callbacks begin 1ms apart - 1kHZ
+    //     &TimerCallback::operator(),
+    //     NULL, &timer
+    // );
 
     PWMUtil::halt();
 
@@ -136,10 +133,11 @@ int main()
     //     sleep_ms( 100 );
     //     std::printf( "pot: %u, curr: %d\n", adc_read(), INA219::read_current_raw() );
 
-        sleep_ms( 5 );
-        const uint16_t pot { adc_read() };
-        std::printf( "pot: %u\n", pot );
-
+        sleep_ms( 10 );
+        const std::uint16_t pot { adc_read() };
+        const std::int16_t cur { INA219::read_current_raw() };
+        const std::int16_t vshunt { INA219::read_vshunt() };
+        std::printf( "pot: %u cur: %d, vshunt: %d\n", pot, cur, vshunt );
 
     }
 }

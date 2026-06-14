@@ -16,8 +16,8 @@ namespace Pin
         PWM_A   { 20 }, // 26
         PWM_B   { 21 }, // 27
 
-        // use ADC0
-        ADC     { 26 } // 31 
+        // use ADC1
+        ADC     { 27 } // 32 
         ;
 
 }

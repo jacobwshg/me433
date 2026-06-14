@@ -26,6 +26,8 @@ namespace INA219
 
     static inline std::uint16_t read( const std::uint8_t reg );
     static inline std::int16_t read_current_raw( void );
+    static inline std::int16_t read_vshunt( void );
+
     static inline void write( const std::uint8_t reg, const std::uint16_t val );
 
     static inline float tomA( const std::int16_t val )
@@ -38,12 +40,12 @@ namespace INA219
 static inline void
 INA219::init( void )
 {
-    static constexpr std::uint16_t cal { 1024 };
     static constexpr std::uint16_t cfg { 0b0011'0000'1000'1111 };
-
-    INA219::write( Reg::CALIB,  cal );
+    static constexpr std::uint16_t cal { 1024 };
 
     INA219::write( Reg::CONFIG, cfg );
+
+    INA219::write( Reg::CALIB,  cal );
 
 }
 
@@ -61,6 +63,12 @@ static inline std::int16_t
 INA219::read_current_raw( void )
 {
     return static_cast< std::int16_t >( INA219::read( Reg::CURRENT ) );
+}
+
+static inline std::int16_t
+INA219::read_vshunt( void )
+{
+    return static_cast< std::int16_t >( INA219::read( Reg::VSHUNT) );
 }
 
 static inline void
