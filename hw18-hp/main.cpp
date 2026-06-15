@@ -5,6 +5,7 @@
 #include "i2c_util.h"
 #include "HX711.h"
 #include "INA219.h"
+#include "iir.h"
 
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
@@ -18,6 +19,7 @@
 namespace
 {
 
+    IIR iir_F { 0.95F };
     //
     // HX711 readings are typically positive numbers
     // on the order of 1e5-1e6,
@@ -95,6 +97,7 @@ get_FI_lims( void )
 
         static std::int32_t F {};
         F = HX711::read_sample();
+        F = ::iir_F.add_sample< std::int32_t >( F );
         ::Fmin = std::min( F, ::Fmin );
         ::Fmax = std::max( F, ::Fmax );
 
@@ -167,7 +170,7 @@ int main()
     get_FI_lims();
 
     // remove
-    while ( true ) {}
+    //while ( true ) {}
 
     while ( true )
     {
