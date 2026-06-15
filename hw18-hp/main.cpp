@@ -11,11 +11,6 @@
 
 #include <cstdio>
 
-
-#define I2C_SDA 8
-#define I2C_SCL 9
-
-
 int main()
 {
     stdio_init_all();
