@@ -34,10 +34,14 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
+#define TIMEOUT_MS 2
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+
+#define UART_BUFSIZ 256
 
 /* USER CODE END PM */
 
@@ -124,7 +128,7 @@ int main(void)
 
   /* -- Sample board code to switch on leds ---- */
   BSP_LED_On(LED_GREEN);
-//  BSP_LED_On(LED_BLUE);
+  BSP_LED_On(LED_BLUE);
 
   //HAL_Delay( 10000 );
 
@@ -137,8 +141,8 @@ int main(void)
 
     //
     /* -- Sample board code to toggle leds ---- */
-    BSP_LED_Toggle(LED_GREEN);
-    BSP_LED_Toggle(LED_BLUE);
+//    BSP_LED_Toggle(LED_GREEN);
+//    BSP_LED_Toggle(LED_BLUE);
 
     /* -- Sample board code for User push-button in interrupt mode ---- */
     if (BspButtonState == BUTTON_PRESSED)
@@ -147,12 +151,28 @@ int main(void)
       BspButtonState = BUTTON_RELEASED;
 
       /* ..... Perform your action ..... */
-      printf( "Segmentation fault (core dumped)\r\n" );
+      const char *txt = "Segmentation fault (core dumped)\r\n";
+      printf( "%s", txt );
+      HAL_UART_Transmit( &huart1, ( const uint8_t * )txt, strnlen( txt, 128 ), TIMEOUT_MS );
     }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    HAL_Delay( 3000 );
+
+    const int usb_chr_i = getchar();
+    if ( EOF != usb_chr_i )
+    {
+    	const uint8_t usb_chr = ( uint8_t ) usb_chr_i;
+    	HAL_UART_Transmit( &huart1, &usb_chr, 1, TIMEOUT_MS );
+    }
+
+    uint8_t uart_chr = '\0';
+    if ( HAL_OK == HAL_UART_Receive( &huart1, &uart_chr, 1, TIMEOUT_MS ) )
+    {
+    	putchar( uart_chr );
+    }
+
+//    HAL_Delay( 3000 );
   }
   /* USER CODE END 3 */
 }

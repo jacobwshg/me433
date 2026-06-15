@@ -25,7 +25,7 @@ HX711::init( void )
 
     gpio_init( PIN_SCK );
     gpio_set_dir( PIN_SCK, GPIO_OUT );
-
+    
     gpio_put( PIN_SCK, 0 );
 }
 

@@ -38,7 +38,7 @@ namespace
     // INA219 readings can be positive or negative
     // depending on current direction
     //
-    static std::int32_t Imax_abs { 0 };
+    static std::int32_t Imax_abs { 100 };
     static float Imax_abs_inv_f { 0.0F };
 
     //
@@ -76,7 +76,7 @@ button_init( void )
 static inline void
 get_FI_lims( void )
 {
-    static constexpr absolute_time_t NSECS { 15 };
+    static constexpr absolute_time_t NSECS { 20 };
     absolute_time_t starttime { get_absolute_time() };
     const absolute_time_t endtime { starttime + NSECS * 1'000'000 };
 
@@ -86,19 +86,19 @@ get_FI_lims( void )
     {
         sleep_ms( 50 );
 
-        static std::int32_t force {};
-        force = HX711::read_sample();
-        ::Fmin = std::min( force, ::Fmin );
-        ::Fmax = std::max( force, ::Fmax );
+        static std::int32_t F {};
+        F = HX711::read_sample();
+        ::Fmin = std::min( F, ::Fmin );
+        ::Fmax = std::max( F, ::Fmax );
 
-        static std::int32_t curr {};
-        curr = INA219::read_current_raw();
-        ::Imax_abs = std::max( std::abs( curr ), Imax_abs );
+        static std::int32_t I {};
+        I = INA219::read_current_raw();
+        ::Imax_abs = std::max( std::abs( I ), Imax_abs );
 
         if ( TimerCallback::expired )
         {
             TimerCallback::expired = false;
-            std::printf( "sampled force %d, curr %d\n" );
+            std::printf( "sampled force %d, curr %d\n", F, I );
         }
 
     }
@@ -130,7 +130,23 @@ int main()
     PWMUtil::init();
 
     HX711::init();
+
+    sleep_ms( 5000 );
+    std::printf( "INA219 no init config: 0x%X, power: %u, calib: %u\n",
+        INA219::read( INA219::Reg::CONFIG ),
+        INA219::read( INA219::Reg::POWER ),
+        INA219::read( INA219::Reg::CALIB )
+    );
+
     INA219::init();
+    sleep_ms( 2000 );
+
+    std::printf( "INA219 after init config: 0x%X, power: %u, calib: %u\n",
+        INA219::read( INA219::Reg::CONFIG ),
+        INA219::read( INA219::Reg::POWER ),
+        INA219::read( INA219::Reg::CALIB )
+    );
+
 
     repeating_timer_t sample_disp_timer {};
     add_repeating_timer_ms( -100, &TimerCallback::operator(), NULL, &sample_disp_timer );

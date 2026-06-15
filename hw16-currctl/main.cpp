@@ -84,11 +84,14 @@ struct TimerCallback
         ::CURR = INA219::read_current_raw();
         ::VSHUNT = INA219::read_vshunt();
 
-        if ( ::POT > ::POT_HI )
+        static std::uint16_t pot_avg {};
+        pot_avg = get_adc_avg( ::POT );
+
+        if ( pot_avg > ::POT_HI )
         {
             PWMUtil::set_chan_ab( PWMUtil::WRAP, PWMUtil::DUTY_LOW );
         }
-        if ( ::POT < ::POT_LO )
+        else if ( pot_avg < ::POT_LO )
         {
             PWMUtil::set_chan_ab( PWMUtil::DUTY_LOW, PWMUtil::WRAP );
         }
@@ -103,7 +106,7 @@ int main()
 
     adc_init();
     adc_gpio_init( Pin::ADC0 );
-    //adc_select_input( 0 );
+    adc_select_input( 0 );
 
     I2CUtil::init();
 
@@ -132,7 +135,7 @@ int main()
 
 
     struct repeating_timer timer {};
-    add_repeating_timer_ms( -1, &TimerCallback::operator(), NULL, &timer );
+    //add_repeating_timer_ms( -1, &TimerCallback::operator(), NULL, &timer );
 
     PWMUtil::halt();
     
@@ -140,8 +143,12 @@ int main()
 
     while ( true )
     {
+        ::POT  = { adc_read() };
+        ::CURR = { INA219::read_current_raw() };
+        ::VSHUNT = { INA219::read_vshunt() };
+
         std::printf( "pot: %u cur: %d, vshunt: %d\n", ::POT, ::CURR, ::VSHUNT );
-        sleep_ms( 50 );
+        sleep_ms( 100 );
 
     }
 }
