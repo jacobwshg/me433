@@ -9,6 +9,7 @@
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "hardware/timer.h"
+#include "hardware/adc.h"
 
 #include <cstdio>
 #include <limits>
@@ -19,7 +20,9 @@ namespace
 
     //
     // HX711 readings are typically positive numbers
-    // on the order of 1e5-1e6
+    // on the order of 1e5-1e6,
+    //
+    // which decreases with force
     //
     static std::int32_t
         Fmin { INT32_MAX },
@@ -29,7 +32,7 @@ namespace
 
     //
     // Fthresh =  Fmin + ( Frange * FTHRESH_SCALE )
-    // force >= Fthresh considered active
+    // force <= Fthresh considered active
     //
     static constexpr float FTHRESH_SCALE { 0.4 };
     static std::int32_t Fthresh { INT32_MAX };
@@ -82,9 +85,13 @@ get_FI_lims( void )
 
     std::printf( "begin warmup sampling\n" );
 
-    while ( get_absolute_time() < endtime )
+    //while ( get_absolute_time() < endtime )
+    while ( PICO_ERROR_TIMEOUT == getchar_timeout_us( 1 ) )
     {
         sleep_ms( 50 );
+
+        static std::uint32_t pot {};
+        pot = adc_read();
 
         static std::int32_t F {};
         F = HX711::read_sample();
@@ -98,14 +105,16 @@ get_FI_lims( void )
         if ( TimerCallback::expired )
         {
             TimerCallback::expired = false;
-            std::printf( "sampled force %d, curr %d\n", F, I );
+            std::printf( "sampled force %d, curr %d, pot %u\n", F, I, pot );
         }
 
     }
 
+    std::printf( "warmup sampling done\n" );
+
     ::Frange = ::Fmax - ::Fmin;
     ::Fthresh = static_cast< std::int32_t >(
-        static_cast< float >( ::Fmin ) +
+        static_cast< float >( ::Fmax ) -
         ::FTHRESH_SCALE * ::Frange
     );
 
@@ -131,7 +140,12 @@ int main()
 
     HX711::init();
 
+    adc_init();
+    adc_gpio_init( Pin::ADC0 );
+    adc_select_input( 0 );
+
     sleep_ms( 5000 );
+
     std::printf( "INA219 no init config: 0x%X, power: %u, calib: %u\n",
         INA219::read( INA219::Reg::CONFIG ),
         INA219::read( INA219::Reg::POWER ),
@@ -140,7 +154,6 @@ int main()
 
     INA219::init();
     sleep_ms( 2000 );
-
     std::printf( "INA219 after init config: 0x%X, power: %u, calib: %u\n",
         INA219::read( INA219::Reg::CONFIG ),
         INA219::read( INA219::Reg::POWER ),
@@ -152,6 +165,9 @@ int main()
     add_repeating_timer_ms( -100, &TimerCallback::operator(), NULL, &sample_disp_timer );
 
     get_FI_lims();
+
+    // remove
+    while ( true ) {}
 
     while ( true )
     {
@@ -165,7 +181,7 @@ int main()
         static bool load_cell_pressed { false };
         static std::int32_t F {};
         F = HX711::read_sample();
-        load_cell_pressed = { F >= ::Fthresh };
+        load_cell_pressed = { F <= ::Fthresh };
 
         if ( load_cell_pressed )
         {
