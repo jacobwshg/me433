@@ -6,6 +6,10 @@
 
 namespace Pin
 {
+    // button
+    static constexpr uint 
+        BTN { 5 };
+
     // HX711 force sensor ( custom prot. )
     static constexpr uint
         FSENS_DT  { 15 },

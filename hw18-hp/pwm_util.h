@@ -16,9 +16,9 @@
 
 namespace PWMUtil
 {
-    static constexpr uint WRAP { 2400 };
-    static constexpr uint DUTY_LOW { 1200 };
-
+    using duty_t = uint;
+    static constexpr duty_t WRAP { 2400 };
+    static constexpr duty_t DUTY_LOW { 1200 };
 
     static constexpr uint FREQ_KHZ { 20 };
     static constexpr uint FREQ_HZ  { FREQ_KHZ * 1000 };
@@ -28,16 +28,16 @@ namespace PWMUtil
         150'000'000.0F / ( static_cast< float >( FREQ_HZ ) * WRAP )
     };
 
-
     static const uint SLICE { pwm_gpio_to_slice_num( Pin::PWM_A ) };
 
     static inline void init( void );
 
     static inline void set_chan_ab(
-        const uint duty_a, const uint duty_b
+        const duty_t duty_a, const duty_t duty_b
     );
 
-    static inline void halt( void );
+    static inline void coast( void );
+    static inline void brake( void );
 }
 
 static inline void
@@ -75,13 +75,19 @@ PWMUtil::init( void )
 
 
 static inline void
-PWMUtil::set_chan_ab( const uint duty_a, const uint duty_b )
+PWMUtil::set_chan_ab( const PWMUtil::duty_t duty_a, const PWMUtil::duty_t duty_b )
 {
     pwm_set_both_levels( SLICE, duty_a, duty_b );
 }
 
 static inline void
-PWMUtil::halt( void )
+PWMUtil::coast( void )
+{
+    set_chan_ab( 0, 0 );
+}
+
+static inline void
+PWMUtil::brake( void )
 {
     set_chan_ab( WRAP, WRAP );
 }

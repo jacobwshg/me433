@@ -57,6 +57,9 @@ HX711::reset_gain( void )
 static inline std::int32_t
 HX711::read_sample( void )
 {
+
+    wait_sample_ready();
+
     std::int32_t dout { 0 }; 
     for ( std::size_t i { 0 }; i < 24; ++i )
     {

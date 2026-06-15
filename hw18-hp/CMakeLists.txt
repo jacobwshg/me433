@@ -57,8 +57,8 @@ target_include_directories(hw18-hp PRIVATE
 target_link_libraries(hw18-hp 
         hardware_i2c
         hardware_pwm
-        
-        )
+        hardware_timer    
+    )
 
 pico_add_extra_outputs(hw18-hp)
 
