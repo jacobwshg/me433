@@ -132,8 +132,8 @@ int main()
     HX711::init();
     INA219::init();
 
-    repeating_timer_t timer {};
-    add_repeating_timer_ms( -100, &TimerCallback::operator(), NULL, &timer );
+    repeating_timer_t sample_disp_timer {};
+    add_repeating_timer_ms( -100, &TimerCallback::operator(), NULL, &sample_disp_timer );
 
     get_FI_lims();
 
