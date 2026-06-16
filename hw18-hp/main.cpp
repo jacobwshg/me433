@@ -228,18 +228,20 @@ int main()
 
                 switch ( dir )
                 {
-                case 1:
+                    case 1:
                     {
                         PWMUtil::set_chan_ab( PWMUtil::WRAP, PWMUtil::WRAP - delta_duty );
+                        break;
                     }
-                    break;
-                case -1:
+                    case -1:
                     {
                         PWMUtil::set_chan_ab( PWMUtil::WRAP - delta_duty, PWMUtil::WRAP );
+                        break;
                     }
-                    break;
-                default:
-                    break;
+                    default:
+                    {
+                        break;
+                    }
                 }
             }
         }
