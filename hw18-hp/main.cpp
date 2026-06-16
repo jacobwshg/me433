@@ -19,7 +19,7 @@
 namespace
 {
 
-    IIR iir_F { 0.95F };
+    IIR iir_F { 0.99F };
     //
     // HX711 readings are typically positive numbers
     // on the order of 1e5-1e6,
@@ -167,6 +167,10 @@ int main()
     repeating_timer_t sample_disp_timer {};
     add_repeating_timer_ms( -100, &TimerCallback::operator(), NULL, &sample_disp_timer );
 
+
+    // remove
+    PWMUtil::set_chan_ab( PWMUtil::WRAP, PWMUtil::DUTY_LOW );
+
     get_FI_lims();
 
     // remove
@@ -184,6 +188,8 @@ int main()
         static bool load_cell_pressed { false };
         static std::int32_t F {};
         F = HX711::read_sample();
+        // TODO: use same IIR instance?
+        F = iir_F.add_sample< std::int32_t >( F );
         load_cell_pressed = { F <= ::Fthresh };
 
         if ( load_cell_pressed )
@@ -222,12 +228,12 @@ int main()
 
                 switch ( dir )
                 {
-                case -1:
+                case 1:
                     {
                         PWMUtil::set_chan_ab( PWMUtil::WRAP, PWMUtil::WRAP - delta_duty );
                     }
                     break;
-                case 1:
+                case -1:
                     {
                         PWMUtil::set_chan_ab( PWMUtil::WRAP - delta_duty, PWMUtil::WRAP );
                     }

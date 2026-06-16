@@ -100,7 +100,7 @@ main()
 	pwm_set_enabled( slice_num, true ); // turn on the PWM
 
 	setangle( MINANGLE );
-	sleep_ms( 100 );
+	sleep_ms( 100 ); 
 
 	// turn on the adc
 	//adc_init();
@@ -113,6 +113,7 @@ main()
 
 		for ( angle_t angle = MINANGLE; angle <= MAXANGLE; ++angle )
 		{
+			printf( "angle: %d\n" , angle );
 			setangle( angle );
 			sleep_ms( SLEEP_DUR );
 		}

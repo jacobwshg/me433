@@ -1,6 +1,6 @@
 
-#ifndef MCP_23K256_H
-#define MCP_23K256_H
+#ifndef MCP_23K256_H__
+#define MCP_23K256_H__
 
 #include "util.h"
 #include "spi_util.h"

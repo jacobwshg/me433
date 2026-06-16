@@ -3,7 +3,7 @@ import board
 import pwmio
 import time
 
-PWM_PIN = board.GP14
+PWM_PIN = board.GP26
 
 PWM_CLK_PERIOD = 20 #ms
 

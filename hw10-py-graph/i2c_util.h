@@ -1,6 +1,6 @@
 
-#ifndef I2C_DEF_H
-#define I2C_DEF_H
+#ifndef I2C_UTIL_H__
+#define I2C_UTIL_H__
 
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"

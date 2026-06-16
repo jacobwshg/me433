@@ -1,4 +1,7 @@
 
+#ifndef HX711_H__
+#define HX711_H__
+
 #include "pico/stdlib.h"
 #include <cstdint>
 #include <cstdio>
@@ -71,3 +74,5 @@ HX711::read_sample( void )
     }
     return dout;
 }
+
+#endif

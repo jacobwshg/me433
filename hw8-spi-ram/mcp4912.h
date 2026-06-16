@@ -1,6 +1,6 @@
 
-#ifndef __MCP4912_H
-#define __MCP4912_H
+#ifndef MCP4912_H__
+#define MCP4912_H__
 
 #include "util.h"
 #include "spi_util.h"

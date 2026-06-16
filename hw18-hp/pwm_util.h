@@ -18,7 +18,7 @@ namespace PWMUtil
 {
     using duty_t = uint;
     static constexpr duty_t WRAP { 2400 };
-    static constexpr duty_t DUTY_LOW { 1200 };
+    static constexpr duty_t DUTY_LOW { 2000 };
 
     static constexpr uint FREQ_KHZ { 20 };
     static constexpr uint FREQ_HZ  { FREQ_KHZ * 1000 };
@@ -56,28 +56,28 @@ PWMUtil::init( void )
     gpio_set_function( Pin::PWM_B, GPIO_FUNC_PWM );
     //gpio_pull_up( Pin::PWM_B );
 
-    pwm_set_chan_level( SLICE, PWM_CHAN_A, 0 );
-    pwm_set_chan_level( SLICE, PWM_CHAN_B, 0 );
-
-
     // std::printf(
     //     "%f %d\n", CLKDIV, WRAP
     // );
 
-    pwm_config cfg { pwm_get_default_config() };
-    pwm_config_set_clkdiv( &cfg, CLKDIV );
-    pwm_config_set_wrap( &cfg, WRAP );
-
+    static pwm_config cfg { pwm_get_default_config() };
 
     pwm_init( SLICE, &cfg, true );
     pwm_set_enabled( SLICE, true );
+
+    pwm_config_set_clkdiv( &cfg, CLKDIV );
+    pwm_config_set_wrap( &cfg, WRAP );
+
+    pwm_set_chan_level( SLICE, PWM_CHAN_A, 0 );
+    pwm_set_chan_level( SLICE, PWM_CHAN_B, 0 );
 }
 
 
 static inline void
 PWMUtil::set_chan_ab( const PWMUtil::duty_t duty_a, const PWMUtil::duty_t duty_b )
 {
-    pwm_set_both_levels( SLICE, duty_a, duty_b );
+    pwm_set_chan_level( SLICE, PWM_CHAN_A, duty_a );
+    pwm_set_chan_level( SLICE, PWM_CHAN_B, duty_b );
 }
 
 static inline void

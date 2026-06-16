@@ -1,6 +1,6 @@
 
-#ifndef __SPI_UTIL_H
-#define __SPI_UTIL_H
+#ifndef SPI_UTIL_H__
+#define SPI_UTIL_H__
 
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
