@@ -1,0 +1,8 @@
+
+Pico
+* GPO: UART0 TX
+* GP1: UART0 RX
+
+STM
+* PB6: USART1_TX
+* PB7: USART1_RX

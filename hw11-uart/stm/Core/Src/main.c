@@ -192,7 +192,7 @@ int main(void)
 
       /* ..... Perform your action ..... */
       const char *txt = "Segmentation fault (core dumped)\r\n";
-      printf( "%s", txt );
+      //printf( "%s", txt );
     }
     /* USER CODE END WHILE */
 
