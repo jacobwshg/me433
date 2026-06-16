@@ -47,12 +47,12 @@ int main()
         TimerCallback::expired = false;
 
         int pc_byte {};
-        while ( PICO_ERROR_TIMEOUT != ( pc_byte = getchar_timeout_us( 0 ) ) )
+        if ( PICO_ERROR_TIMEOUT != ( pc_byte = getchar_timeout_us( 0 ) ) )
         {
             uart_putc_raw( UART_PORT, ( uint8_t ) pc_byte );
         }
 
-        while ( uart_is_readable( UART_PORT ) )
+        if ( uart_is_readable( UART_PORT ) )
         {
             putchar_raw( uart_getc( UART_PORT ) );
         }

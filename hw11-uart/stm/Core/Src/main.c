@@ -74,9 +74,26 @@ static void MX_USART4_UART_Init(void);
 // For scanf/getchar, you also need the _read() syscall implemented:
 int _read(int file, char *ptr, int len)
 {
-    HAL_UART_Receive(&huart1, (uint8_t*)ptr, 1, HAL_MAX_DELAY);
+    HAL_UART_Receive(&hcom_uart[ COM1 ], (uint8_t*)ptr, 1, HAL_MAX_DELAY);
     return 1;
 }
+
+int __io_getchar(void)
+{
+  uint8_t ch = 0;
+
+  // 1. Clear the Overrun flag. If a character was typed before this function
+  //    was called, the UART hardware locks up. This prevents that.
+  __HAL_UART_CLEAR_OREFLAG(&huart1);
+
+  // 2. Block until a character is actually received.
+  //    Change &huart2 to match your VCP UART instance (e.g., &hlpuart1)
+  HAL_UART_Receive(&hcom_uart[ COM1 ], &ch, 1, HAL_MAX_DELAY);
+
+  // 3. Return the character to scanf/getchar
+  return (int)ch;
+}
+
 
 /* USER CODE END 0 */
 
@@ -148,12 +165,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint8_t pcByte;
-  uint8_t picoByte;
-  char bridgeReady[] = "STM32 UART bridge ready\r\n";
+//  uint8_t pcByte;
+//  uint8_t picoByte;
+//  char bridgeReady[] = "STM32 UART bridge ready\r\n";
+//
+//  printf("%s", bridgeReady);
+//  HAL_UART_Transmit(&huart1, (uint8_t *)bridgeReady, strlen(bridgeReady), HAL_MAX_DELAY);
 
-  printf("%s", bridgeReady);
-  HAL_UART_Transmit(&huart1, (uint8_t *)bridgeReady, strlen(bridgeReady), HAL_MAX_DELAY);
+
 
   while (1)
   {
@@ -179,23 +198,37 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    if (__HAL_UART_GET_FLAG(&hcom_uart[COM1], UART_FLAG_RXNE) != RESET)
+    static uint8_t
+		c_uart = 0, c_usb = 0;
+
+//    if (__HAL_UART_GET_FLAG(&hcom_uart[COM1], UART_FLAG_RXNE) != RESET)
+//    {
+//      pcByte = (uint8_t)hcom_uart[COM1].Instance->RDR;
+//      while (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_TXE) == RESET)
+//      {
+//      }
+//      huart1.Instance->TDR = pcByte;
+//    }
+
+    if ( HAL_OK == HAL_UART_Receive( &huart1, &c_uart, 1, 0 ) )
     {
-      pcByte = (uint8_t)hcom_uart[COM1].Instance->RDR;
-      while (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_TXE) == RESET)
-      {
-      }
-      huart1.Instance->TDR = pcByte;
+    	HAL_UART_Transmit( &hcom_uart[ COM1 ], &c_uart, 1, 0 );
     }
 
-    if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)
+    if ( HAL_OK == HAL_UART_Receive( &hcom_uart[ COM1 ], &c_usb, 1, 0 ) )
     {
-      picoByte = (uint8_t)huart1.Instance->RDR;
-      while (__HAL_UART_GET_FLAG(&hcom_uart[COM1], UART_FLAG_TXE) == RESET)
-      {
-      }
-      hcom_uart[COM1].Instance->TDR = picoByte;
+    	HAL_UART_Transmit( &huart1, &c_usb, 1, 0 );
     }
+
+//    if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)
+//    {
+//      picoByte = (uint8_t)huart1.Instance->RDR;
+//      while (__HAL_UART_GET_FLAG(&hcom_uart[COM1], UART_FLAG_TXE) == RESET)
+//      {
+//      }
+//      hcom_uart[COM1].Instance->TDR = picoByte;
+//    }
+
 
 //    HAL_Delay( 3000 );
   }
@@ -347,26 +380,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-/**
-  * @brief  Fuck UART
-  * @param  None
-  * @retval The character received from the UART
-  */
-int __io_getchar(void)
-{
-  uint8_t ch = 0;
-
-  // 1. Clear the Overrun flag. If a character was typed before this function
-  //    was called, the UART hardware locks up. This prevents that.
-  __HAL_UART_CLEAR_OREFLAG(&huart1);
-
-  // 2. Block until a character is actually received.
-  //    Change &huart2 to match your VCP UART instance (e.g., &hlpuart1)
-  HAL_UART_Receive(&huart1, &ch, 1, HAL_MAX_DELAY);
-
-  // 3. Return the character to scanf/getchar
-  return (int)ch;
-}
 
 /* USER CODE END 4 */
 
