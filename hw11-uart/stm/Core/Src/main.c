@@ -51,8 +51,11 @@ COM_InitTypeDef BspCOMInit;
 __IO uint32_t BspButtonState = BUTTON_RELEASED;
 
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart4;
 
 /* USER CODE BEGIN PV */
+UART_HandleTypeDef huart2;
+
 
 /* USER CODE END PV */
 
@@ -60,12 +63,20 @@ UART_HandleTypeDef huart1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_USART4_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+// For scanf/getchar, you also need the _read() syscall implemented:
+int _read(int file, char *ptr, int len)
+{
+    HAL_UART_Receive(&huart1, (uint8_t*)ptr, 1, HAL_MAX_DELAY);
+    return 1;
+}
 
 /* USER CODE END 0 */
 
@@ -99,6 +110,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
+  MX_USART4_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -127,7 +139,7 @@ int main(void)
   printf("Welcome to STM32 world !\r\n");
 
   /* -- Sample board code to switch on leds ---- */
-  BSP_LED_On(LED_GREEN);
+  //BSP_LED_On(LED_GREEN);
   BSP_LED_On(LED_BLUE);
 
   //HAL_Delay( 10000 );
@@ -136,13 +148,19 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint8_t pcByte;
+  uint8_t picoByte;
+  char bridgeReady[] = "STM32 UART bridge ready\r\n";
+
+  printf("%s", bridgeReady);
+  HAL_UART_Transmit(&huart1, (uint8_t *)bridgeReady, strlen(bridgeReady), HAL_MAX_DELAY);
+
   while (1)
   {
 
     //
     /* -- Sample board code to toggle leds ---- */
-//    BSP_LED_Toggle(LED_GREEN);
-//    BSP_LED_Toggle(LED_BLUE);
+
 
     /* -- Sample board code for User push-button in interrupt mode ---- */
     if (BspButtonState == BUTTON_PRESSED)
@@ -150,26 +168,33 @@ int main(void)
       /* Reset button state */
       BspButtonState = BUTTON_RELEASED;
 
+      BSP_LED_Toggle(LED_GREEN);
+      BSP_LED_Toggle(LED_BLUE);
+
       /* ..... Perform your action ..... */
       const char *txt = "Segmentation fault (core dumped)\r\n";
       printf( "%s", txt );
-      HAL_UART_Transmit( &huart1, ( const uint8_t * )txt, strnlen( txt, 128 ), TIMEOUT_MS );
     }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-    const int usb_chr_i = getchar();
-    if ( EOF != usb_chr_i )
+    if (__HAL_UART_GET_FLAG(&hcom_uart[COM1], UART_FLAG_RXNE) != RESET)
     {
-    	const uint8_t usb_chr = ( uint8_t ) usb_chr_i;
-    	HAL_UART_Transmit( &huart1, &usb_chr, 1, TIMEOUT_MS );
+      pcByte = (uint8_t)hcom_uart[COM1].Instance->RDR;
+      while (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_TXE) == RESET)
+      {
+      }
+      huart1.Instance->TDR = pcByte;
     }
 
-    uint8_t uart_chr = '\0';
-    if ( HAL_OK == HAL_UART_Receive( &huart1, &uart_chr, 1, TIMEOUT_MS ) )
+    if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)
     {
-    	putchar( uart_chr );
+      picoByte = (uint8_t)huart1.Instance->RDR;
+      while (__HAL_UART_GET_FLAG(&hcom_uart[COM1], UART_FLAG_TXE) == RESET)
+      {
+      }
+      hcom_uart[COM1].Instance->TDR = picoByte;
     }
 
 //    HAL_Delay( 3000 );
@@ -264,6 +289,42 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
+  * @brief USART4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART4_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART4_Init 0 */
+
+  /* USER CODE END USART4_Init 0 */
+
+  /* USER CODE BEGIN USART4_Init 1 */
+
+  /* USER CODE END USART4_Init 1 */
+  huart4.Instance = USART4;
+  huart4.Init.BaudRate = 115200;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart4.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART4_Init 2 */
+
+  /* USER CODE END USART4_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -278,6 +339,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -285,6 +347,26 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+  * @brief  Fuck UART
+  * @param  None
+  * @retval The character received from the UART
+  */
+int __io_getchar(void)
+{
+  uint8_t ch = 0;
+
+  // 1. Clear the Overrun flag. If a character was typed before this function
+  //    was called, the UART hardware locks up. This prevents that.
+  __HAL_UART_CLEAR_OREFLAG(&huart1);
+
+  // 2. Block until a character is actually received.
+  //    Change &huart2 to match your VCP UART instance (e.g., &hlpuart1)
+  HAL_UART_Receive(&huart1, &ch, 1, HAL_MAX_DELAY);
+
+  // 3. Return the character to scanf/getchar
+  return (int)ch;
+}
 
 /* USER CODE END 4 */
 
