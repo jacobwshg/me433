@@ -29,7 +29,8 @@ int main()
         static std::uint16_t rawangle {}, angle {};
         rawangle = AS5600::readreg( AS5600::Reg::RAW_ANGLE_H );
         //angle = AS5600::readreg( AS5600::Reg::ANGLE_H );
-        std::printf( "rawangle: %u, angle: %u\n", rawangle, angle );
+        //std::printf( "%u,%u\n", rawangle, angle );
+        std::printf( "%u\n", rawangle );
         sleep_ms( 100 );
     }
 }
