@@ -20,8 +20,7 @@ namespace Pins
         I2C_SDA_PIN { 20 },
         I2C_SCL_PIN { 21 },
         BLINK_PIN   { 0 },
-        ADC_PIN     { 26 },
-        ADC_IN_PIN  { 0 }
+        ADC_PIN     { 26 }
     ;
 }
 
@@ -38,6 +37,7 @@ int main()
 
     gpio_init( Pins::BLINK_PIN );
     gpio_set_dir( Pins::BLINK_PIN, GPIO_OUT );
+    gpio_pull_up( Pins::BLINK_PIN );
     gpio_put( Pins::BLINK_PIN, blink_on );
 
     // I2C Initialisation.
@@ -51,7 +51,7 @@ int main()
 
     adc_init();
     adc_gpio_init( Pins::ADC_PIN );
-    adc_select_input( Pins::ADC_IN_PIN );
+    adc_select_input( Pins::ADC_PIN - 26 );
 
     SSD1306::init(); 
 
@@ -80,7 +80,7 @@ int main()
         const float fps = 1e6f / ( float ) fps_dt;
         fps_then = fps_now;
 
-        std::snprintf( msg_V.data(), msg_V.size(), "ADC voltage @ GPIO%u: %.2f V ( 0x%04x )", Pins::ADC_IN_PIN, V, adc_value );
+        std::snprintf( msg_V.data(), msg_V.size(), "ADC voltage @ GPIO%u: %.2f V ( 0x%04x )", Pins::ADC_PIN, V, adc_value );
         std::snprintf( msg_fps.data(), msg_fps.size(), "FPS: %.2f", fps );
 
         SSD1306::clear();
